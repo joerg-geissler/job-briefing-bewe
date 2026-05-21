@@ -139,7 +139,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="btn-ghost"   onclick="resetProfile()">&#8635; Auf Standard zurücksetzen</button>
       <span class="scores-status" id="scores-status"></span>
     </div>
-    <p style="margin-top:12px;font-size:11px;color:#aaa">&#128190; Export-Datei ersetzen unter: C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Scheduled\job-briefing-bewe\profile.json</p>
+    <div style="margin-top:16px;padding:14px 16px;background:#f8f9ff;border:1px solid #e0e4f0;border-radius:10px;font-size:12px;color:#555;line-height:1.7">
+      <strong style="color:#1a1a2e">So wird der ge&auml;nderte Score zum neuen Standard:</strong><br>
+      Pfad der Quelldatei:<br>
+      <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 6px;border-radius:4px;display:inline-block;margin:4px 0">C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Scheduled\job-briefing-bewe\profile.json</code><br><br>
+      Das ist der <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">PROFILE_PATH</code> in <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">generate.py</code>.
+      Beim n&auml;chsten Lauf von <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">generate.py</code> (t&auml;glich automatisch oder manuell)
+      wird diese Datei eingelesen und als <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">PROFILE_SCORING</code> in die HTML eingebettet &mdash;
+      das wird dann der neue &bdquo;Standard zur&uuml;cksetzen&ldquo;-Wert.<br><br>
+      <strong>Ablauf:</strong> Im Browser bearbeiten &rarr; Exportieren &rarr; Datei an obigen Pfad kopieren &rarr; <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">generate.py</code> l&auml;uft &rarr; neuer Standard ist eingebettet.
+    </div>
   </div>
 </div>
 
