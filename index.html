@@ -7,9 +7,14 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#333}
-.header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:white;padding:18px 24px 14px}
+.header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:white;padding:18px 24px 0}
 .header h1{font-size:22px;font-weight:700}
-.header .sub{font-size:13px;color:#aab;margin-top:4px}
+.header .sub{font-size:13px;color:#aab;margin-top:4px;padding-bottom:10px}
+.tab-nav{display:flex;gap:2px;padding-top:4px}
+.tab-btn{padding:10px 20px;font-size:13px;font-weight:600;border:none;border-radius:8px 8px 0 0;cursor:pointer;background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);transition:background .15s,color .15s}
+.tab-btn:hover{background:rgba(255,255,255,.2);color:white}
+.tab-btn.active{background:#f0f2f5;color:#1a1a2e}
+.page{display:none}.page.active{display:block}
 .controls{background:white;padding:14px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-bottom:1px solid #e0e4e8;box-shadow:0 2px 4px rgba(0,0,0,.05)}
 .controls label{font-size:13px;color:#666}
 .controls select{border:1px solid #ddd;border-radius:6px;padding:6px 10px;font-size:13px;background:#fafafa}
@@ -54,13 +59,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card.job-applied{border-left-color:#66bb6a!important}
 .card.job-archived{opacity:.4}
 .card.job-archived .card-title{text-decoration:line-through}
+.neu-info{padding:14px 24px 4px;font-size:14px;font-weight:600;color:#1a1a2e}
 </style>
 </head>
 <body>
 <div class="header">
   <h1>&#127919; Job Briefing BEWE</h1>
   <div class="sub">T&auml;glich aktualisiert &middot; Zuletzt: 2026-05-21 &middot; 16 neue Stellen heute</div>
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('overview')" id="tab-overview">&#128203; &Uuml;bersicht</button>
+    <button class="tab-btn" onclick="showTab('neu')" id="tab-neu">&#127381; NEU <span id="neu-badge" style="background:#e53935;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;vertical-align:middle">0</span></button>
+  </div>
 </div>
+
+<div id="page-overview" class="page active">
 <div class="controls">
   <label>Mindest-Score:</label>
   <input type="range" id="scoreFilter" min="50" max="110" value="60"
@@ -84,6 +96,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="sf-btn" data-sf="all"             onclick="setStatusFilter('all')">&#128203; Alle <span class="sf-cnt" id="cnt-all">0</span></button>
 </div>
 <div class="grid" id="grid"></div>
+</div>
+
+<div id="page-neu" class="page">
+  <div class="neu-info" id="neu-info">-</div>
+  <div class="grid" id="grid-neu"></div>
+</div>
+
 <div class="footer">Stand 2026-05-21 &middot; 126 Stellen &middot; 6 Quellen &middot; automatisch generiert</div>
 <script>
 const TODAY = '2026-05-21';
@@ -109,17 +128,61 @@ function getJobKey(j){ return ((j.title||'')+'|'+(j.company||'')).toLowerCase();
 function loadStatus(){
   try{
     const ls=JSON.parse(localStorage.getItem(STATUS_KEY)||'{}');
-    // localStorage wins; INITIAL_STATUS als Fallback wenn LS leer
     return Object.keys(ls).length ? ls : Object.assign({},INITIAL_STATUS);
   }
   catch(e){ return Object.assign({},INITIAL_STATUS); }
 }
 function saveStatus(){ localStorage.setItem(STATUS_KEY,JSON.stringify(jobStatus)); }
+
+function showTab(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='neu') renderNeu();
+}
+
+function renderCard(j){
+  const sc=scoreClass(j.score);
+  const jk=getJobKey(j);
+  const jst=jobStatus[jk]||'';
+  const jkH=esc(jk);
+  const salTag=j.salary_text?'<span class="tag tag-sal">&#128182; '+esc(j.salary_text.replace('pro Jahr','p.a.').replace('pro Monat','p.M.'))+'</span>':'';
+  const newTag=j.date_added===TODAY?'<span class="tag tag-new">&#127381; Heute</span>':'';
+  const applyDate=jst==='applied'&&jobStatus[jk+'_date']?'<span class="tag" style="background:#e8f5e9;color:#2e7d32">&#10003; '+jobStatus[jk+'_date']+'</span>':'';
+  const pubDateTag=j.pub_date?'<span class="tag tag-pubdate" title="Veroeffentlichungsdatum">&#128197; '+fmtDate(j.pub_date)+'</span>':'';
+  const mailDateTag=j.date_added?'<span class="tag tag-maildate" title="Systemerfassung">&#128269; '+fmtDate(j.date_added)+'</span>':'';
+  const url=j.url||'https://www.google.com/search?q='+encodeURIComponent((j.title||'')+' '+(j.company||''));
+  const xtra=jst==='archived'?' job-archived':jst==='starred'?' job-starred':jst==='applied'?' job-applied':'';
+  return '<div class="card '+sc+xtra+'">'
+    +'<div class="card-top"><div style="flex:1"><div class="card-title">'+esc(j.title||'Unbekannte Stelle')+'</div>'
+    +'<div class="card-company">'+esc(j.company||'')+'</div></div>'
+    +'<div class="score-badge '+sc+'">'+j.score+'</div></div>'
+    +'<div class="card-meta"><span class="tag tag-loc">&#128205; '+esc(j.location||'-')+'</span>'
+    +salTag+'<span class="tag tag-src">'+esc(j.source||'')+'</span>'+newTag+applyDate+'</div>'
+    +'<div class="card-meta" style="margin-top:4px">'+pubDateTag+mailDateTag+'</div>'
+    +'<a class="card-link" href="'+esc(url)+'" target="_blank">'+(j.url?'&#10132; Zum Angebot':'&#10132; Google-Suche')+'</a>'
+    +'<div class="card-actions">'
+    +'<button class="act-btn'+(jst==='starred'?' st-starred':'')+'" data-jk="'+jkH+'" data-st="starred"  onclick="toggleStatus(this.dataset.jk,this.dataset.st)">&#11088; Merken</button>'
+    +'<button class="act-btn'+(jst==='applied'?' st-applied':'')+'" data-jk="'+jkH+'" data-st="applied"  onclick="toggleStatus(this.dataset.jk,this.dataset.st)">&#10003; Beworben</button>'
+    +'<button class="act-btn'+(jst==='archived'?' st-archived':'')+'" data-jk="'+jkH+'" data-st="archived" onclick="toggleStatus(this.dataset.jk,this.dataset.st)">&#128230; Archiv</button>'
+    +'</div></div>';
+}
+
+function renderNeu(){
+  const maxDate=ALL_JOBS.reduce((m,j)=>j.date_added>m?j.date_added:m,'');
+  const jobs=ALL_JOBS.filter(j=>j.date_added===maxDate).sort((a,b)=>b.score-a.score);
+  document.getElementById('neu-info').textContent=jobs.length+' Stellen · letzte Abfrage: '+fmtDate(maxDate);
+  const grid=document.getElementById('grid-neu');
+  grid.innerHTML=jobs.length?jobs.map(j=>renderCard(j)).join(''):'<div style="padding:24px;color:#888">Keine Jobs.</div>';
+}
+
 function toggleStatus(jk,newSt){
   const cur=jobStatus[jk]||'';
   if(cur===newSt){ delete jobStatus[jk]; delete jobStatus[jk+'_date']; }
   else{ jobStatus[jk]=newSt; if(newSt==='applied') jobStatus[jk+'_date']=TODAY; else delete jobStatus[jk+'_date']; }
   saveStatus(); render();
+  if(document.getElementById('page-neu').classList.contains('active')) renderNeu();
 }
 function setStatusFilter(sf){
   activeStatusFilter=sf;
@@ -161,36 +224,16 @@ function render(){
   document.getElementById('dataInfo').textContent=jobs.length+' Stellen · '+new Set(jobs.map(j=>j.source)).size+' Quellen';
   const grid=document.getElementById('grid');
   if(!jobs.length){grid.innerHTML='<div id="noResults">Keine Stellen gefunden.</div>';return;}
-  grid.innerHTML=jobs.map(j=>{
-    const sc=scoreClass(j.score);
-    const jk=getJobKey(j);
-    const jst=jobStatus[jk]||'';
-    const jkH=esc(jk);
-    const salTag=j.salary_text?'<span class="tag tag-sal">&#128182; '+esc(j.salary_text.replace('pro Jahr','p.a.').replace('pro Monat','p.M.'))+'</span>':'';
-    const newTag=j.date_added===TODAY?'<span class="tag tag-new">&#127381; Heute</span>':'';
-    const applyDate=jst==='applied'&&jobStatus[jk+'_date']?'<span class="tag" style="background:#e8f5e9;color:#2e7d32">&#10003; '+jobStatus[jk+'_date']+'</span>':'';
-    const pubDateTag=j.pub_date?'<span class="tag tag-pubdate" title="Veroeffentlichungsdatum">&#128197; '+fmtDate(j.pub_date)+'</span>':'';
-    const mailDateTag=j.date_added?'<span class="tag tag-maildate" title="Systemerfassung">&#128269; '+fmtDate(j.date_added)+'</span>':'';
-    const url=j.url||'https://www.google.com/search?q='+encodeURIComponent((j.title||'')+' '+(j.company||''));
-    const xtra=jst==='archived'?' job-archived':jst==='starred'?' job-starred':jst==='applied'?' job-applied':'';
-    return '<div class="card '+sc+xtra+'">'
-      +'<div class="card-top"><div style="flex:1"><div class="card-title">'+esc(j.title||'Unbekannte Stelle')+'</div>'
-      +'<div class="card-company">'+esc(j.company||'')+'</div></div>'
-      +'<div class="score-badge '+sc+'">'+j.score+'</div></div>'
-      +'<div class="card-meta"><span class="tag tag-loc">&#128205; '+esc(j.location||'-')+'</span>'
-      +salTag+'<span class="tag tag-src">'+esc(j.source||'')+'</span>'+newTag+applyDate+'</div>'
-      +'<div class="card-meta" style="margin-top:4px">'+pubDateTag+mailDateTag+'</div>'
-      +'<a class="card-link" href="'+esc(url)+'" target="_blank">'+(j.url?'&#10132; Zum Angebot':'&#10132; Google-Suche')+'</a>'
-      +'<div class="card-actions">'
-      +'<button class="act-btn'+(jst==='starred'?' st-starred':'')+'" data-jk="'+jkH+'" data-st="starred"  onclick="toggleStatus(this.dataset.jk,this.dataset.st)" title="Merken">&#11088; Merken</button>'
-      +'<button class="act-btn'+(jst==='applied'?' st-applied':'')+'" data-jk="'+jkH+'" data-st="applied"  onclick="toggleStatus(this.dataset.jk,this.dataset.st)" title="Beworben">&#10003; Beworben</button>'
-      +'<button class="act-btn'+(jst==='archived'?' st-archived':'')+'" data-jk="'+jkH+'" data-st="archived" onclick="toggleStatus(this.dataset.jk,this.dataset.st)" title="Archivieren">&#128230; Archiv</button>'
-      +'</div></div>';
-  }).join('');
+  grid.innerHTML=jobs.map(j=>renderCard(j)).join('');
+}
+function updateNeuBadge(){
+  const maxDate=ALL_JOBS.reduce((m,j)=>j.date_added>m?j.date_added:m,'');
+  document.getElementById('neu-badge').textContent=ALL_JOBS.filter(j=>j.date_added===maxDate).length;
 }
 jobStatus=loadStatus();
 buildSourceFilter();
 render();
+updateNeuBadge();
 </script>
 </body>
 </html>
