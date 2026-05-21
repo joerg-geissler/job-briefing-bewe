@@ -33,7 +33,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-meta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .tag{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600}
 .tag-loc{background:#eef1ff;color:#4a6cf7}.tag-sal{background:#e8f5f3;color:#2a9d8f}
-.tag-src{background:#f5f0ff;color:#7b2d8b}.tag-new{background:#fff3cd;color:#a0660a}
+.tag-src{background:#f5f0ff;color:#7b2d8b}.tag-new{background:#fff3cd;color:#a0660a}.tag-pubdate{background:#fef3e2;color:#c25a00}.tag-maildate{background:#e8f0ff;color:#3b5bdb}
 .card-link{display:inline-block;margin-top:10px;font-size:12px;color:#4a6cf7;text-decoration:none}
 .card-link:hover{text-decoration:underline}
 #noResults{text-align:center;padding:60px;color:#999;font-size:15px;grid-column:1/-1}
@@ -96,6 +96,10 @@ let activeStatusFilter = 'active';
 function scoreClass(s){
   if(s>=95)return 's95'; if(s>=90)return 's90';
   if(s>=80)return 's80'; if(s>=70)return 's70'; return 's60';
+}
+function fmtDate(s){
+  if(!s||s.length<10) return s||'';
+  var p=s.split('-'); return p[2]+'.'+p[1]+'.'+p[0];
 }
 function esc(s){
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -160,6 +164,8 @@ function render(){
     const salTag=j.salary_text?'<span class="tag tag-sal">&#128182; '+esc(j.salary_text.replace('pro Jahr','p.a.').replace('pro Monat','p.M.'))+'</span>':'';
     const newTag=j.date_added===TODAY?'<span class="tag tag-new">&#127381; Heute</span>':'';
     const applyDate=jst==='applied'&&jobStatus[jk+'_date']?'<span class="tag" style="background:#e8f5e9;color:#2e7d32">&#10003; '+jobStatus[jk+'_date']+'</span>':'';
+    const pubDateTag=j.pub_date?'<span class="tag tag-pubdate" title="Veroeffentlichungsdatum">&#128197; '+fmtDate(j.pub_date)+'</span>':'';
+    const mailDateTag=j.date_added?'<span class="tag tag-maildate" title="Systemerfassung">&#128269; '+fmtDate(j.date_added)+'</span>':'';
     const url=j.url||'https://www.google.com/search?q='+encodeURIComponent((j.title||'')+' '+(j.company||''));
     const xtra=jst==='archived'?' job-archived':jst==='starred'?' job-starred':jst==='applied'?' job-applied':'';
     return '<div class="card '+sc+xtra+'">'
@@ -168,6 +174,7 @@ function render(){
       +'<div class="score-badge '+sc+'">'+j.score+'</div></div>'
       +'<div class="card-meta"><span class="tag tag-loc">&#128205; '+esc(j.location||'-')+'</span>'
       +salTag+'<span class="tag tag-src">'+esc(j.source||'')+'</span>'+newTag+applyDate+'</div>'
+      +'<div class="card-meta" style="margin-top:4px">'+pubDateTag+mailDateTag+'</div>'
       +'<a class="card-link" href="'+esc(url)+'" target="_blank">'+(j.url?'&#10132; Zum Angebot':'&#10132; Google-Suche')+'</a>'
       +'<div class="card-actions">'
       +'<button class="act-btn'+(jst==='starred'?' st-starred':'')+'" data-jk="'+jkH+'" data-st="starred"  onclick="toggleStatus(this.dataset.jk,this.dataset.st)" title="Merken">&#11088; Merken</button>'
