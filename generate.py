@@ -6,13 +6,22 @@ Taeglich vom Scheduled Task aufgerufen.
 import json, os, sys
 from datetime import date
 
-DB_PATH  = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\jobs_dashboard.json"
-OUT_PATH = r"C:\Users\joerg\job-briefing-public\index.html"
-TODAY    = date.today().isoformat()
+DB_PATH      = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\jobs_dashboard.json"
+STATUS_PATH  = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\job_status.json"
+OUT_PATH     = r"C:\Users\joerg\job-briefing-public\index.html"
+TODAY        = date.today().isoformat()
 
 # Jobs laden
 with open(DB_PATH, encoding="utf-8-sig") as f:
     jobs = json.load(f)
+
+# Status laden (aus job_status.json, falls vorhanden)
+if os.path.exists(STATUS_PATH):
+    with open(STATUS_PATH, encoding="utf-8") as f:
+        job_status_data = json.load(f)
+else:
+    job_status_data = {}
+status_json = json.dumps(job_status_data, ensure_ascii=False, separators=(",", ":"))
 
 jobs_json = json.dumps(jobs, ensure_ascii=False, separators=(",", ":"))
 total     = len(jobs)
@@ -91,8 +100,12 @@ function esc(s){
 }
 function getJobKey(j){ return ((j.title||'')+'|'+(j.company||'')).toLowerCase(); }
 function loadStatus(){
-  try{ return JSON.parse(localStorage.getItem(STATUS_KEY)||'{}'); }
-  catch(e){ return {}; }
+  try{
+    const ls=JSON.parse(localStorage.getItem(STATUS_KEY)||'{}');
+    // localStorage wins; INITIAL_STATUS als Fallback wenn LS leer
+    return Object.keys(ls).length ? ls : Object.assign({},INITIAL_STATUS);
+  }
+  catch(e){ return Object.assign({},INITIAL_STATUS); }
 }
 function saveStatus(){ localStorage.setItem(STATUS_KEY,JSON.stringify(jobStatus)); }
 function toggleStatus(jk,newSt){
@@ -214,6 +227,7 @@ HEADER = f"""<!DOCTYPE html>
 <script>
 const TODAY = '{TODAY}';
 const ALL_JOBS = {jobs_json};
+const INITIAL_STATUS = {status_json};
 """
 
 FOOTER = """</script>
