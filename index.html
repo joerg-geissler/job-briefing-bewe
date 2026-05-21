@@ -60,6 +60,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card.job-archived{opacity:.4}
 .card.job-archived .card-title{text-decoration:line-through}
 .neu-info{padding:14px 24px 4px;font-size:14px;font-weight:600;color:#1a1a2e}
+.scores-page{padding:20px 24px;max-width:860px}
+.crit-card{background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:14px;overflow:hidden}
+.crit-card.exclude-card{border-left:4px solid #e63946}
+.crit-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap}
+.crit-name{flex:1;font-size:13px;font-weight:700;color:#1a1a2e}
+.crit-name input{border:1px solid #e0e0e0;border-radius:6px;padding:4px 8px;font-size:13px;font-weight:700;width:140px}
+.crit-pts{display:flex;align-items:center;gap:6px;font-size:12px;color:#666}
+.crit-pts input{width:64px;border:1px solid #ddd;border-radius:6px;padding:4px 8px;font-size:13px;text-align:right}
+.crit-del{border:none;background:none;cursor:pointer;color:#ccc;font-size:16px;padding:2px 6px;border-radius:5px}
+.crit-del:hover{background:#fde8ea;color:#e63946}
+.terms-area{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;align-items:center}
+.term-pill{display:inline-flex;align-items:center;gap:4px;background:#eef1ff;color:#4a6cf7;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600}
+.term-pill.exclude-pill{background:#fde8ea;color:#e63946}
+.term-pill button{border:none;background:none;cursor:pointer;color:inherit;font-size:13px;line-height:1;padding:0;opacity:.6}
+.term-pill button:hover{opacity:1}
+.term-add{display:flex;gap:5px;align-items:center}
+.term-add input{border:1px solid #ddd;border-radius:20px;padding:3px 10px;font-size:12px;width:130px;outline:none}
+.term-add input:focus{border-color:#4a6cf7}
+.term-add button{border:1px solid #4a6cf7;background:#4a6cf7;color:white;border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer}
+.scores-toolbar{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.btn-primary{background:#4a6cf7;color:white;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-primary:hover{background:#3a5ce7}
+.btn-ghost{background:white;color:#555;border:1px solid #ddd;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-ghost:hover{background:#f5f5ff;border-color:#4a6cf7;color:#4a6cf7}
+.scores-status{font-size:12px;color:#2e7d32;align-self:center}
+.base-row{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.base-row label{font-size:13px;color:#555;flex:1}
 </style>
 </head>
 <body>
@@ -69,6 +96,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="tab-nav">
     <button class="tab-btn active" onclick="showTab('overview')" id="tab-overview">&#128203; &Uuml;bersicht</button>
     <button class="tab-btn" onclick="showTab('neu')" id="tab-neu">&#127381; NEU <span id="neu-badge" style="background:#e53935;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;vertical-align:middle">0</span></button>
+    <button class="tab-btn" onclick="showTab('scores')" id="tab-scores">&#127919; Scoring</button>
   </div>
 </div>
 
@@ -103,11 +131,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="grid" id="grid-neu"></div>
 </div>
 
+<div id="page-scores" class="page">
+  <div class="scores-page">
+    <div id="scores-editor"><!-- wird per JS befuellt --></div>
+    <div class="scores-toolbar">
+      <button class="btn-primary" onclick="downloadProfile()">&#128190; profile.json herunterladen</button>
+      <button class="btn-ghost"   onclick="resetProfile()">&#8635; Zurücksetzen</button>
+      <span class="scores-status" id="scores-status"></span>
+    </div>
+    <p style="margin-top:12px;font-size:11px;color:#aaa">Die heruntergeladene Datei ersetzt:<br>C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Scheduled\job-briefing-bewe\profile.json</p>
+  </div>
+</div>
+
 <div class="footer">Stand 2026-05-21 &middot; 126 Stellen &middot; 6 Quellen &middot; automatisch generiert</div>
 <script>
 const TODAY = '2026-05-21';
 const ALL_JOBS = [{"title":"Marketing Manager · Social Media & Content","company":"bilidon GmbH","location":"","url":"","salary_text":"5.000 € – 6.000 € pro Monat","salary_val":66000,"source":"# # # [BEWE]","date_added":"2026-05-21","pub_date":"","mail_date":"2026-05-21","score":65},{"title":"SENIOR MARKETING MANAGER (M/W/D) – (BRAND, PRODUCT & ACTIVATION)","company":"Clarins","location":"München","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-21","score":90},{"title":"Senior SEA Manager","company":"kiecom GmbH","location":"Gräfelfing","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-21","score":90},{"title":"Head of Advertising (m/w/d)","company":"Marketplace Maniacs GmbH","location":"München","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-21","score":90},{"title":"Global Digital Marketing Specialist (f/m/d)","company":"Sandvik","location":"München","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-21","score":75},{"title":"Manager Onlinemarketing (m/w/d)","company":"Dresden Marketing GmbH","location":"Dresden","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-21","score":68},{"title":"Copywriter (m/w/d)","company":"PimpUP GmbH","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-21","score":68},{"title":"Head of Social & Creative (m/w/d)","company":"Mawave Marketing","location":"München","url":"","salary_text":"47.000 € - 57.000 €","salary_val":52000,"source":"# # # [BEWE]","date_added":"2026-05-21","score":90},{"title":"Customer Journey Manager MINI Europe München (m/w/d)","company":"Orizon GmbH, Niederlassung München Süd","location":"München","url":"","salary_text":"6.800 € – 7.200 € pro Monat","salary_val":84000,"source":"# # # [BEWE]","date_added":"2026-05-21","score":79},{"title":"Commercial Leader, DACH Startups (English)","company":"Google","location":"München","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-21","score":75},{"title":"Persönliche Assistenz der Geschäftsführung (w/m/d)","company":"Octopus Energy Group","location":"","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-21","score":50},{"title":"Outcome Customer Engineer, Google Cloud Platform Delivery (German)","company":"Google","location":"München","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-21","score":10},{"title":"Google Cloud Architect (m/w/d)","company":"Rocken AG","location":"Cham","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-21","score":10},{"title":"Senior Data Engineer - Google Cloud Platform Bad Friedrichshall (m/w/d)","company":"Schwarz IT","location":"Bad Friedrichshall-Untergriesheim","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-21","score":10},{"title":"Google Cloud Daten-Clerk (m/w/d) – Einfache Dateneingabe, Sofort","company":"Google Germany GmbH","location":"Berlin","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-21","score":5},{"title":"Google KI-Modell Testläufer (m/w/d) – Zukunftssicherer Job","company":"Google Germany GmbH","location":"","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-21","score":5},{"title":"Influencer Marketing Manager (m/w/d) für TikTok, YouTube, Instagram","company":"Ykone GmbH","location":"","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-19","score":65},{"title":"Werbe-Evaluator für Google (m/w/d) – Keine Erfahrung","company":"Google Germany GmbH","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-19","score":65},{"title":"Presales Consultant (gn) Google Cloud Services","company":"SoftwareOne Deutschland GmbH","location":"Krostitz, Deutschland","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-19","score":61},{"title":"Google Kundensupport-Agent (m/w/d) – Quereinstieg möglich","company":"Google","location":"Leipzig, Deutschland","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-19","score":53},{"title":"Softwareentwickler für Cloud-Anwendungen (AWS/Azure)","company":"","location":"","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-19","score":10},{"title":"Informatiker als Lead Developer Google Cloud Platform","company":"Syna","location":"","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-19","score":10},{"title":"Google App-Support Junior (m/w/d) – Quereinsteiger-Programm","company":"Google Germany GmbH","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-19","score":5},{"title":"Trainee – Cloud Engineer (Google Cloud)","company":"","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-19","score":5},{"title":"Marketing Manager (m/w/d)","company":"dean&david Franchise GmbH","location":"","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-18","score":65},{"title":"Staff Forward Deployed Engineer, GenAI, Google Cloud","company":"Google","location":"Frankfurt","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-18","score":10},{"title":"Forward Deployed Engineering Manager II, Generative AI, Google Cloud","company":"Google","location":"München","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-18","score":10},{"title":"Google Cloud Support Tech (m/w/d) – Firmen-Laptop gestellt","company":"Google Germany GmbH","location":"Essen","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-18","score":10},{"title":"Google App-Entwicklungs-Assistent (m/w/d) – WFH möglich","company":"Google Germany GmbH","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-18","score":10},{"title":"Senior Marketing Manager*in Content (m/w/d)","company":"ARTDECO cosmetic GmbH","location":"München","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-17","score":90},{"title":"Marketing Lead (m/f/d)","company":"Kayzen","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-17","score":83},{"title":"Key Account Executive FSI, Google Cloud (German, English)","company":"Google","location":"Frankfurt","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-17","score":68},{"title":"Performance Marketing Expert:in (Teilzeit, max. 20h)","company":"","location":"","url":"","salary_text":"","salary_val":0,"source":"Stepstone","date_added":"2026-05-17","score":65},{"title":"Meta Ads – Paid Social – Performance Marketing Manager","company":"","location":"","url":"","salary_text":"","salary_val":0,"source":"Stepstone","date_added":"2026-05-17","score":65},{"title":"Projekt Manager Unternehmensentwicklung / Corporate Development (m/w/d)","company":"Tyczka","location":"","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-17","score":58},{"title":"(Junior) Consultant PR (m/w/d) in Vollzeit","company":"ELEMENT C","location":"","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-17","score":5},{"title":"Senior Marketing Manager","company":"Neura Robotics GmbH","location":"München","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-16","score":90},{"title":"Ads Inhalts-Prüfer für Google (m/w/d) – Ohne Telefonie, Remote","company":"Google Germany GmbH","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-16","score":76},{"title":"Kommunikationsmanager: in (m/w/d)","company":"epi","location":"München","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-16","score":75},{"title":"Key Account Executive FSI, Google Cloud (German, English)","company":"Google","location":"München","url":"","salary_text":"","salary_val":0,"source":"#GOOGLE","date_added":"2026-05-16","score":75},{"title":"Head of Hydration (m/w/d)","company":"The Quality Group","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"# # # [BEWE]","date_added":"2026-05-16","score":68},{"title":"Demand Generation Lead, Google Cloud Marketing","company":"Google","location":"München","url":"","salary_text":"","salary_val":0,"source":"Google Jobs","date_added":"2026-05-15","score":90},{"title":"Senior Marketing Manager - Google Ads/Paid Media/SEO","company":"wambo marketing GmbH","location":"Bielefeld","url":"","salary_text":"","salary_val":0,"source":"Google Jobs","date_added":"2026-05-15","score":83},{"title":"(Senior) Brand Manager mit Medical Background","company":"Pharma SGP Holding SE","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"StepStone","date_added":"2026-05-15","score":80},{"title":"(Senior) Content & Advertisement Coordinator","company":"Pharma SGP Holding SE","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"StepStone","date_added":"2026-05-15","score":80},{"title":"Referent für Klimapolitik und Emissionshandel","company":"co2ncept plus e.V.","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"StepStone","date_added":"2026-05-15","score":70},{"title":"Performance Marketing Manager - Meta/YouTube/Analyse","company":"Workwise GmbH","location":"Hamburg","url":"","salary_text":"","salary_val":0,"source":"Google Jobs","date_added":"2026-05-15","score":68},{"title":"Digitaler/KI Outdoor-Berater","company":"Bergzeit GmbH","location":"Otterfing","url":"","salary_text":"","salary_val":0,"source":"StepStone","date_added":"2026-05-15","score":58},{"title":"Werbetexter (m/w/d)","company":"Loft Film GmbH","location":"Deutschland","url":"","salary_text":"","salary_val":0,"source":"StepStone","date_added":"2026-05-15","score":50},{"title":"Standortleiter (m/w/d)","company":"Neurofleet","location":"München","url":"","salary_text":"","salary_val":0,"source":"StepStone","date_added":"2026-05-15","score":50},{"title":"Abteilungsleitung Dialogmarketing (m/w/d)","company":"Studiosus Reisen München GmbH","location":"München","url":"https://de.indeed.com/viewjob?jk=b2082cbde46352c6","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":110},{"title":"Head of Marketing (m/w/d)","company":"Raya Diagnostics GmbH","location":"Deutschland","url":"https://de.indeed.com/viewjob?jk=9e096cf3493985dc","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":103},{"title":"Senior Customer Success Manager (m/w/d)","company":"SafeNow","location":"München","url":"https://de.indeed.com/viewjob?jk=53a5677badd46c95","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":95},{"title":"Senior Performance Marketing Manager:in Google Ads - 100% Remote","company":"Beilmann Marketing","location":"Mannheim","url":"","salary_text":"","salary_val":0,"source":"Google Jobs","date_added":"2026-05-15","score":88},{"title":"Performance Marketing Manager - Meta & Google Ads (m/w/d)","company":"Reif und Kollegen GmbH","location":"München","url":"","salary_text":"46.000 € - 63.000 € pro Jahr","salary_val":54500,"source":"StepStone","date_added":"2026-05-15","score":87},{"title":"(Sr.) Paid Search Manager (m/w/d)","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=eb8a951017861dbf","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":80},{"title":"(Senior) Account Manager Public Sector (m/w/d)","company":"]init[ AG","location":"München","url":"https://de.indeed.com/viewjob?jk=4c51b81dfbcf79f8","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":83},{"title":"SEA Consultant (m/w/d)","company":"AnalyticaA GmbH","location":"München","url":"","salary_text":"","salary_val":0,"source":"Google Jobs","date_added":"2026-05-15","score":83},{"title":"PR und Media Manager (m/w/d)","company":"Moltke Sports GmbH","location":"München","url":"","salary_text":"3.500 € - 5.000 € pro Monat","salary_val":51000,"source":"Indeed","date_added":"2026-05-15","score":79},{"title":"Channel Marketing Manager (m/w/d)","company":"TD SYNNEX Germany GmbH & Co. OHG","location":"München","url":"","salary_text":"50.000 € - 65.000 € pro Jahr","salary_val":57500,"source":"StepStone","date_added":"2026-05-15","score":79},{"title":"(Junior/Senior) Projektmanager MarTech & AI (m/w/d)","company":"Evernine GmbH","location":"München","url":"","salary_text":"40.000 € - 60.000 € pro Jahr","salary_val":50000,"source":"Indeed","date_added":"2026-05-15","score":75},{"title":"Senior Sales Wholesale Nord/Ost (m/w/d)","company":"Assenagon Asset Management","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":75},{"title":"Performance Marketing & CRM Manager (m/w/d)","company":"L'Osteria - DE Company","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":75},{"title":"Account Supervisor Germany (m/w/d)","company":"We Are Social","location":"","url":"https://de.indeed.com/viewjob?jk=9bcb914deef25243","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":73},{"title":"Social Media Manager Homeoffice (m/w/d)","company":"","location":"Remote","url":"https://de.indeed.com/viewjob?jk=676ef14e9b8998b5","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":73},{"title":"Strategy Director (w/m/d)","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=321eba12624871d9","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":65},{"title":"Marketing Specialist - Central Europe","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=36972cff9aed223e","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":65},{"title":"Content & SEO Manager (m/w/d)","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=8f5e9584d7e5a734","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":65},{"title":"Field Marketing Manager (all genders)","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=3171446cf66beae7","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":65},{"title":"Performance Marketing Manager (m/w/d)","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=9cfebc87abaf7685","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":65},{"title":"Head of Snacking (m/w/d)","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=8569795d3c8d87d4","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":65},{"title":"Product Marketing Manager (m/w/d)","company":"More Nutrition","location":"","url":"https://de.indeed.com/viewjob?jk=83c5bdd0fb4a5534","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":65},{"title":"Cooperations & Retail Media Marketing Manager (m/w/d)","company":"Bergzeit GmbH","location":"Otterfing","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":65},{"title":"Performance Marketing Manager - Meta/Google/YouTube (m/w/d)","company":"Uniwunder GmbH","location":"Dresden","url":"","salary_text":"","salary_val":0,"source":"Google Jobs","date_added":"2026-05-15","score":65},{"title":"Research & Insights Manager (w/m/d)","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=96f64fef8d5bd19d","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":50},{"title":"Account Executive Germany (m/w/d)","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=5d7301ad28283d4c","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":50},{"title":"Referent für Politik-Monitoring (w/m/d)","company":"","location":"","url":"https://de.indeed.com/viewjob?jk=46c250dc079f7647","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-15","score":50},{"title":"Projektmitarbeiter (m/w/d) Kommunikation und Qualitätssicherung (mit Marketinganteil)","company":"Bildungswerk der Bayerischen Wirtschaft (bbw) gGmbH","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":95},{"title":"Senior Marketing Manager (m/w/d) – Generalist mit Lead-Perspektive","company":"elunic AG","location":"München","url":"https://de.indeed.com/viewjob?jk=x1elunic","salary_text":"60.000 € - 80.000 € pro Jahr","salary_val":70000,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"Senior Retail Campaign & Media Manager (m/w/d)","company":"Tennis-Point Europe GmbH","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"(Senior) Social Media Manager*in (m/w/d) in der Region München","company":"AnalyticaA GmbH","location":"München","url":"https://de.indeed.com/viewjob?jk=cfafa0c943326b99","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"Senior IT Manager (m/w/d) Digital Growth","company":"Deutscher Landwirtschaftsverlag GmbH","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"Senior Marketing Manager* B2B Software / Lead Generation - befristet","company":"QAware GmbH","location":"München","url":"https://de.indeed.com/viewjob?jk=cfafa0c943326b99b2","salary_text":"55.000 € - 65.000 € pro Jahr","salary_val":60000,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"Senior Campaign & Retail Media Manager (m/w/d)","company":"Tennis-Point Europe GmbH","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"Director Product Marketing","company":"Infineon Technologies AG","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"Senior Performance Marketing Manager","company":"Panorama Fachklinik GmbH","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"Director Business, Projects & Marketing for Quantum Processing Units (f/m/div)","company":"Infineon Technologies AG","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"Head of Performance Marketing (m/w/d)","company":"Argumentorik-Akademie GmbH","location":"München","url":"https://de.indeed.com/viewjob?jk=c55f7489103ff2ba","salary_text":"50.000 € pro Jahr","salary_val":50000.0,"source":"Indeed","date_added":"2026-05-12","score":90},{"title":"Mitarbeiter:in Online Marketing (m/w/d)","company":"Linara ambulante pflegedienste GmbH","location":"Berlin","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":85},{"title":"Head of Marketing (m/w/d)","company":"DOSB New Media GmbH","location":"Düsseldorf","url":"https://de.indeed.com/viewjob?jk=81fccd768c6e10b9","salary_text":"75.000 € pro Jahr","salary_val":75000.0,"source":"Indeed","date_added":"2026-05-12","score":84},{"title":"Manager Content Strategy & Channel Management (m/w/d)","company":"Infineon Technologies AG","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":83},{"title":"Stabsstelle Vertrieb / Marketing / Strategie (m/w/d)*","company":"SHK Innung München","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":83},{"title":"Data Analyst (m/w/d) – Online Marketing - 100% remote deutschlandweit","company":"WIRmachenDRUCK","location":"Deutschland","url":"https://de.indeed.com/viewjob?jk=5d850b737e791a98","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":76},{"title":"Spezialist Digitales Marketing (m/w/d)","company":"Orizon GmbH, Niederlassung München Süd","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":75},{"title":"Manager Communications C3 with focus on Connected Secure Systems (f/m/div)","company":"Infineon Technologies AG","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":75},{"title":"Social Media Marketing Manager (m/w/d)","company":"Dross&Schaffer Services GmbH","location":"Gräfelfing","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":75},{"title":"Senior Application Manager - Solid State Circuit Breakers (f/m/div)","company":"Infineon Technologies AG","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":75},{"title":"Amazon Performance Marketing Manager (Vollzeit/Remote)","company":"amzfox","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":73},{"title":"Strategischer Marketing Manager (m/w/d)","company":"Hays AG","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":73},{"title":"Creative Strategist for DTC Ecommerce (US Based/Remote)","company":"Paired","location":"Deutschland","url":"https://de.indeed.com/viewjob?jk=2f3fa907f8b80162","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":69},{"title":"Senior Partnership Manager (m/w/d)","company":"Teleclinic GmbH","location":"Deutschland","url":"","salary_text":"1.000 € pro Monat","salary_val":12000,"source":"Indeed","date_added":"2026-05-12","score":68},{"title":"Marketing Projektmanager (m/w/d)","company":"solution25 Gmbh","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Performance Marketing & Marketing Operations Manager Europe (m/w/d)","company":"swissnet Group","location":"Jetzt direkt bewerben","url":"https://de.indeed.com/viewjob?jk=2e80c267233262c9","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Marketing- & Vertriebsassistenz (m/w/d)","company":"Concadora GmbH","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Marketing Manager:in / Marketing Expert:in (m/w/d)","company":"Rechtsanwaltskanzlei Dr. Araujo Kurth","location":"Frankfurt am Main","url":"https://de.indeed.com/viewjob?jk=fcbe5cb07b4d791c","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Marketing Projektmanager (m/w/d)","company":"solution25 Gmbh","location":"Hamburg","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"IT / Back-end Marketing Spezialist","company":"WIN-med","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"PR & Communications Manager (m/w/d) (m/w/d)","company":"Hays AG","location":"Berlin","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Social Media (m/w/d)","company":"VIEREGG Design GmbH","location":"Jetzt direkt bewerben","url":"https://de.indeed.com/viewjob?jk=a5cd3ab9a6bc0222","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Social Media Manager (m/w/d)","company":"Horizon65 GmbH","location":"Jetzt direkt bewerben","url":"https://de.indeed.com/viewjob?jk=9082c06a8ae2aca7","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Communication Manager for Technology Transfer (f/m/d)","company":"Universitätsmedizin Göttingen","location":"Göttingen","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"E-Commerce Marketing Manager (m/w/d)","company":"Drahtseile24 GmbH","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Conceptioner Branded Entertainment (m/w/d)","company":"i&u Studios GmbH","location":"Köln","url":"https://de.indeed.com/viewjob?jk=0dae119dce92fc64","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Performance & Brand Marketing Manager (m/w/d)","company":"RUKU Sauna-Manufaktur GmbH & Co. KG","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Digital Marketing Analyst","company":"leitzcloud by vBoxx","location":"Berlin","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":65},{"title":"Mitarbeiter/in Anzeigendisposition","company":"I.G.T. Informationsgesellschaft Technik mbH","location":"Ottobrunn","url":"https://de.indeed.com/viewjob?jk=55ae1e793195e26a","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":60},{"title":"Grafikdesigner (m/w/d) – hybrid // Raum München","company":"TeamSport E-Karting","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":60},{"title":"Produkt Manager (m/w/d) für Medizintechnik","company":"DATA MODUL AG","location":"München","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":60},{"title":"Mini Job für Jugendliche","company":"AuromaGmbH","location":"München","url":"https://de.indeed.com/viewjob?jk=d4de440027f16959","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":60},{"title":"Amazon ADVERTISING MANAGER REMOTE","company":"amasulting GmbH","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":58},{"title":"Account Manager Media (m/w/d) mit Home-Office","company":"PaKo Consulting","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":58},{"title":"Mitarbeiter Kommunikation & Projektarbeit (m/w/d)","company":"Brustkrebs Deutschland e.V.","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":53},{"title":"Product Sales Manager - Mobile Computers","company":"TSC Auto ID Technology EMEA GmbH","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":50},{"title":"E-Commerce Manager (m/w/d) für Amazon-Marktplatz","company":"Reisenthel Accessoires GmbH & Co. KG","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":50},{"title":"E-Commerce Manager (m/w/d)","company":"Michael Page","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":50},{"title":"E-Commerce Manager (m/w/d) in Vollzeit","company":"LongLife LED GmbH by HK","location":"Jetzt direkt bewerben","url":"","salary_text":"","salary_val":0,"source":"Indeed","date_added":"2026-05-12","score":50}];
 const INITIAL_STATUS = {};
+const PROFILE_SCORING = {"base":50,"hard_exclude":{"score":5,"terms":["Junior","Trainee","Praktikum","Außendienst","Reinigung","Lager","Gasoline"]},"tech_exclude":{"score":10,"terms":["C++","Java backend","Golang","DevOps","SAP Basis","ML Engineer"]},"criteria":[{"name":"senior","points":15,"terms":["Director","Head of","Lead","GF","Interim","Advisor","Beirat","Chief","VP","Abteilungsleitung"]},{"name":"marketing","points":15,"terms":["Marketing","Digital","Growth","Brand","SEO","SEA","CRO","UX","Content","Performance","CRM","Communications","PR","Werbung"]},{"name":"meaning","points":20,"terms":["impact","sinn","nachhaltig","sustain","non-profit","ngo","sozial","stiftung","bildung","pflege","care","klima","charity","gemeinnützig","e.V."]},{"name":"munich","points":10,"terms":["münchen","munich","garching","oberhaching","ismaning","karlsfeld","gräfelfing","olching","planegg","starnberg","otterfing"]},{"name":"remote","points":8,"terms":["remote","homeoffice","home office"]},{"name":"consulting","points":8,"terms":["consult","strategy","beratung","interim","fractional","advisor","berater"]},{"name":"deutschland","points":3,"terms":["deutschland"]},{"name":"salary_bonus","points":4,"salary_threshold":75000}]};
 
 const STATUS_KEY = 'bewe_status_v1';
 let jobStatus = {};
@@ -139,7 +180,8 @@ function showTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
-  if(name==='neu') renderNeu();
+  if(name==='neu')    renderNeu();
+  if(name==='scores') renderScoresEditor();
 }
 
 function renderCard(j){
@@ -230,6 +272,119 @@ function updateNeuBadge(){
   const maxDate=ALL_JOBS.reduce((m,j)=>j.date_added>m?j.date_added:m,'');
   document.getElementById('neu-badge').textContent=ALL_JOBS.filter(j=>j.date_added===maxDate).length;
 }
+// ── Scoring-Editor ──
+let profileData = JSON.parse(JSON.stringify(PROFILE_SCORING));
+
+function esc2(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderScoresEditor(){
+  const p = profileData;
+  let html = '';
+
+  // Basis-Score
+  html += '<div class="crit-card"><div class="base-row">'
+    + '<label>&#9889; Basis-Score (Ausgangswert jeder Stelle)</label>'
+    + '<input type="number" id="pe-base" value="'+p.base+'" min="0" max="200" style="width:70px;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:14px;font-weight:700;text-align:right" onchange="profileData.base=parseInt(this.value)||0">'
+    + '<span style="font-size:12px;color:#888">Punkte</span>'
+    + '</div></div>';
+
+  // Exclude-Blöcke
+  ['hard_exclude','tech_exclude'].forEach(key=>{
+    const ex = p[key];
+    const label = key==='hard_exclude' ? '&#128683; Hard-Exclude' : '&#9888; Tech-Exclude';
+    html += '<div class="crit-card exclude-card">'
+      + '<div class="crit-header">'
+      + '<span class="crit-name">'+label+'</span>'
+      + '<div class="crit-pts"><span>&#8594; Score:</span>'
+      + '<input type="number" value="'+ex.score+'" min="0" max="50" onchange="profileData[\''+key+'\'].score=parseInt(this.value)||0"></div>'
+      + '</div>'
+      + '<div class="terms-area" id="terms-'+key+'">'
+      + ex.terms.map((t,i)=>'<span class="term-pill exclude-pill">'+esc2(t)
+          +'<button onclick="removeTerm(\''+key+'\',null,'+i+')" title="Entfernen">&times;</button></span>').join('')
+      + '<div class="term-add"><input type="text" id="ti-'+key+'" placeholder="Begriff..." onkeydown="if(event.key===\'Enter\')addTerm(\''+key+'\',null)">'
+      + '<button onclick="addTerm(\''+key+'\',null)">&#65291;</button></div>'
+      + '</div></div>';
+  });
+
+  // Dynamische Kriterien
+  html += '<div id="crit-list">';
+  p.criteria.forEach((c,i)=>{
+    const hasSalary = 'salary_threshold' in c;
+    html += '<div class="crit-card" id="crit-'+i+'">'
+      + '<div class="crit-header">'
+      + '<div class="crit-name"><input type="text" value="'+esc2(c.name)+'" placeholder="Name" onchange="profileData.criteria['+i+'].name=this.value"></div>'
+      + '<div class="crit-pts">';
+    if(hasSalary){
+      html += '<span>Gehalt &#8805;</span>'
+        + '<input type="number" value="'+(c.salary_threshold||75000)+'" min="0" step="1000" onchange="profileData.criteria['+i+'].salary_threshold=parseInt(this.value)||0">'
+        + '<span>€ &rarr;</span>';
+    }
+    html += '<input type="number" value="'+c.points+'" min="0" max="200" onchange="profileData.criteria['+i+'].points=parseInt(this.value)||0">'
+      + '<span>Pkt</span></div>'
+      + '<button class="crit-del" onclick="removeCriteria('+i+')" title="Kriterium l&ouml;schen">&#128465;</button>'
+      + '</div>';
+    if(!hasSalary){
+      html += '<div class="terms-area" id="terms-crit-'+i+'">'
+        + (c.terms||[]).map((t,ti)=>'<span class="term-pill">'+esc2(t)
+            +'<button onclick="removeTerm(\'criteria\','+i+','+ti+')" title="Entfernen">&times;</button></span>').join('')
+        + '<div class="term-add"><input type="text" id="ti-crit-'+i+'" placeholder="Begriff..." onkeydown="if(event.key===\'Enter\')addTerm(\'criteria\','+i+')">'
+        + '<button onclick="addTerm(\'criteria\','+i+')">&#65291;</button></div>'
+        + '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Neues Kriterium
+  html += '<button class="btn-ghost" style="margin-bottom:16px" onclick="addCriteria()">&#65291; Neues Kriterium</button>';
+
+  document.getElementById('scores-editor').innerHTML = html;
+}
+
+function addTerm(type, idx){
+  const id = type==='criteria' ? 'ti-crit-'+idx : 'ti-'+type;
+  const el = document.getElementById(id);
+  const val = (el.value||'').trim();
+  if(!val) return;
+  if(type==='criteria') { profileData.criteria[idx].terms = profileData.criteria[idx].terms||[]; profileData.criteria[idx].terms.push(val); }
+  else profileData[type].terms.push(val);
+  el.value='';
+  renderScoresEditor();
+}
+
+function removeTerm(type, idx, ti){
+  if(type==='criteria') profileData.criteria[idx].terms.splice(ti,1);
+  else profileData[type].terms.splice(ti,1);
+  renderScoresEditor();
+}
+
+function addCriteria(){
+  profileData.criteria.push({name:'neu',points:10,terms:[]});
+  renderScoresEditor();
+}
+
+function removeCriteria(i){
+  profileData.criteria.splice(i,1);
+  renderScoresEditor();
+}
+
+function resetProfile(){
+  profileData = JSON.parse(JSON.stringify(PROFILE_SCORING));
+  renderScoresEditor();
+  document.getElementById('scores-status').textContent='Zur&uuml;ckgesetzt';
+  setTimeout(()=>document.getElementById('scores-status').textContent='',2000);
+}
+
+function downloadProfile(){
+  const blob = new Blob([JSON.stringify(profileData,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'profile.json';
+  a.click();
+  document.getElementById('scores-status').textContent='&#10003; Heruntergeladen';
+  setTimeout(()=>document.getElementById('scores-status').textContent='',3000);
+}
+
 jobStatus=loadStatus();
 buildSourceFilter();
 render();
