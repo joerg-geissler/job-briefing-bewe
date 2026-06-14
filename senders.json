@@ -33,5 +33,10 @@
     "sender": "jobs@experteer.com",
     "source": "Experteer",
     "description": "Experteer Executive-Stellen – HOCHRELEVANT"
+  },
+  {
+    "sender": "jobs-noreply@linkedin.com",
+    "source": "Linkediin",
+    "description": ""
   }
 ]
