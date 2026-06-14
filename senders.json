@@ -1,0 +1,37 @@
+[
+  {
+    "sender": "donotreply@jobalert.indeed.com",
+    "source": "Indeed Alert",
+    "description": "Indeed Job-Alert-Mails (neue Stellen)"
+  },
+  {
+    "sender": "donotreply@match.indeed.com",
+    "source": "Indeed Match",
+    "description": "Indeed Profil-Match-Mails"
+  },
+  {
+    "sender": "alert@indeed.com",
+    "source": "Indeed Archiv",
+    "description": "Indeed Archiv-Alerts"
+  },
+  {
+    "sender": "jobs@mail.xing.com",
+    "source": "Xing",
+    "description": "XING Job-Empfehlungen"
+  },
+  {
+    "sender": "notify-noreply@google.com",
+    "source": "#GOOGLE",
+    "description": "Google for Jobs Digest"
+  },
+  {
+    "sender": "info@jobagent.stepstone.de",
+    "source": "Stepstone",
+    "description": "StepStone Job-Alerts"
+  },
+  {
+    "sender": "jobs@experteer.com",
+    "source": "Experteer",
+    "description": "Experteer Executive-Stellen – HOCHRELEVANT"
+  }
+]

@@ -6,9 +6,15 @@ Taeglich vom Scheduled Task aufgerufen.
 import json, os, sys
 from datetime import date
 
-DB_PATH      = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\jobs_dashboard.json"
-STATUS_PATH  = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\job_status.json"
-OUT_PATH     = r"C:\Users\joerg\job-briefing-public\index.html"
+_LOCAL_DB      = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\jobs_dashboard.json"
+_LOCAL_STATUS  = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\job_status.json"
+_LOCAL_PROFILE = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Scheduled\job-briefing-bewe\profile.json"
+_LOCAL_OUT     = r"C:\Users\joerg\job-briefing-public\index.html"
+
+DB_PATH      = os.environ.get("DB_PATH",      "jobs_dashboard.json" if os.path.exists("jobs_dashboard.json") else _LOCAL_DB)
+STATUS_PATH  = os.environ.get("STATUS_PATH",  "job_status.json"     if os.path.exists("job_status.json")     else _LOCAL_STATUS)
+PROFILE_PATH = os.environ.get("PROFILE_PATH", "profile.json"        if os.path.exists("profile.json")        else _LOCAL_PROFILE)
+OUT_PATH     = os.environ.get("OUT_PATH",     "index.html")
 TODAY        = date.today().isoformat()
 
 # Jobs laden
@@ -22,6 +28,14 @@ if os.path.exists(STATUS_PATH):
 else:
     job_status_data = {}
 status_json = json.dumps(job_status_data, ensure_ascii=False, separators=(",", ":"))
+
+# Profil laden
+if os.path.exists(PROFILE_PATH):
+    with open(PROFILE_PATH, encoding="utf-8") as f:
+        profile_data = json.load(f)
+else:
+    profile_data = {"base": 50, "hard_exclude": {"score": 5, "terms": []}, "tech_exclude": {"score": 10, "terms": []}, "criteria": []}
+profile_json = json.dumps(profile_data, ensure_ascii=False, separators=(",", ":"))
 
 jobs_json = json.dumps(jobs, ensure_ascii=False, separators=(",", ":"))
 total     = len(jobs)
@@ -85,6 +99,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card.job-archived{opacity:.4}
 .card.job-archived .card-title{text-decoration:line-through}
 .neu-info{padding:14px 24px 4px;font-size:14px;font-weight:600;color:#1a1a2e}
+.scores-page{padding:20px 24px;max-width:860px}
+.crit-card{background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:14px;overflow:hidden}
+.crit-card.exclude-card{border-left:4px solid #e63946}
+.crit-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap}
+.crit-name{flex:1;font-size:13px;font-weight:700;color:#1a1a2e}
+.crit-name input{border:1px solid #e0e0e0;border-radius:6px;padding:4px 8px;font-size:13px;font-weight:700;width:140px}
+.crit-pts{display:flex;align-items:center;gap:6px;font-size:12px;color:#666}
+.crit-pts input{width:64px;border:1px solid #ddd;border-radius:6px;padding:4px 8px;font-size:13px;text-align:right}
+.crit-del{border:none;background:none;cursor:pointer;color:#ccc;font-size:16px;padding:2px 6px;border-radius:5px}
+.crit-del:hover{background:#fde8ea;color:#e63946}
+.terms-area{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;align-items:center}
+.term-pill{display:inline-flex;align-items:center;gap:4px;background:#eef1ff;color:#4a6cf7;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600}
+.term-pill.exclude-pill{background:#fde8ea;color:#e63946}
+.term-pill button{border:none;background:none;cursor:pointer;color:inherit;font-size:13px;line-height:1;padding:0;opacity:.6}
+.term-pill button:hover{opacity:1}
+.term-add{display:flex;gap:5px;align-items:center}
+.term-add input{border:1px solid #ddd;border-radius:20px;padding:3px 10px;font-size:12px;width:130px;outline:none}
+.term-add input:focus{border-color:#4a6cf7}
+.term-add button{border:1px solid #4a6cf7;background:#4a6cf7;color:white;border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer}
+.scores-toolbar{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.btn-primary{background:#4a6cf7;color:white;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-primary:hover{background:#3a5ce7}
+.btn-ghost{background:white;color:#555;border:1px solid #ddd;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-ghost:hover{background:#f5f5ff;border-color:#4a6cf7;color:#4a6cf7}
+.scores-status{font-size:12px;color:#2e7d32;align-self:center}
+.base-row{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.base-row label{font-size:13px;color:#555;flex:1}
 """
 
 # JavaScript (kein f-string, nur jobs_json und TODAY werden spaeter eingefuegt)
@@ -119,7 +160,8 @@ function showTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
-  if(name==='neu') renderNeu();
+  if(name==='neu')    renderNeu();
+  if(name==='scores') renderScoresEditor();
 }
 
 function renderCard(j){
@@ -210,6 +252,131 @@ function updateNeuBadge(){
   const maxDate=ALL_JOBS.reduce((m,j)=>j.date_added>m?j.date_added:m,'');
   document.getElementById('neu-badge').textContent=ALL_JOBS.filter(j=>j.date_added===maxDate).length;
 }
+// ── Scoring-Editor ──
+const PROFILE_KEY = 'bewe_profile_v1';
+function loadProfile(){
+  try{
+    const s = localStorage.getItem(PROFILE_KEY);
+    if(s) return JSON.parse(s);
+  } catch(e){}
+  return JSON.parse(JSON.stringify(PROFILE_SCORING));
+}
+function saveProfile(){
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profileData));
+  const el = document.getElementById('scores-status');
+  if(el){ el.textContent='&#10003; Gespeichert'; clearTimeout(el._t); el._t=setTimeout(()=>el.textContent='',2000); }
+}
+let profileData = loadProfile();
+
+function esc2(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderScoresEditor(){
+  const p = profileData;
+  let html = '';
+
+  // Basis-Score
+  html += '<div class="crit-card"><div class="base-row">'
+    + '<label>&#9889; Basis-Score (Ausgangswert jeder Stelle)</label>'
+    + '<input type="number" id="pe-base" value="'+p.base+'" min="0" max="200" style="width:70px;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:14px;font-weight:700;text-align:right" onchange="profileData.base=parseInt(this.value)||0;saveProfile()">'
+    + '<span style="font-size:12px;color:#888">Punkte</span>'
+    + '</div></div>';
+
+  // Exclude-Blöcke
+  ['hard_exclude','tech_exclude'].forEach(key=>{
+    const ex = p[key];
+    const label = key==='hard_exclude' ? '&#128683; Hard-Exclude' : '&#9888; Tech-Exclude';
+    html += '<div class="crit-card exclude-card">'
+      + '<div class="crit-header">'
+      + '<span class="crit-name">'+label+'</span>'
+      + '<div class="crit-pts"><span>&#8594; Score:</span>'
+      + '<input type="number" value="'+ex.score+'" min="0" max="50" onchange="profileData[\''+key+'\'].score=parseInt(this.value)||0;saveProfile()"></div>'
+      + '</div>'
+      + '<div class="terms-area" id="terms-'+key+'">'
+      + ex.terms.map((t,i)=>'<span class="term-pill exclude-pill">'+esc2(t)
+          +'<button onclick="removeTerm(\''+key+'\',null,'+i+')" title="Entfernen">&times;</button></span>').join('')
+      + '<div class="term-add"><input type="text" id="ti-'+key+'" placeholder="Begriff..." onkeydown="if(event.key===\'Enter\')addTerm(\''+key+'\',null)">'
+      + '<button onclick="addTerm(\''+key+'\',null)">&#65291;</button></div>'
+      + '</div></div>';
+  });
+
+  // Dynamische Kriterien
+  html += '<div id="crit-list">';
+  p.criteria.forEach((c,i)=>{
+    const hasSalary = 'salary_threshold' in c;
+    html += '<div class="crit-card" id="crit-'+i+'">'
+      + '<div class="crit-header">'
+      + '<div class="crit-name"><input type="text" value="'+esc2(c.name)+'" placeholder="Name" onchange="profileData.criteria['+i+'].name=this.value;saveProfile()"></div>'
+      + '<div class="crit-pts">';
+    if(hasSalary){
+      html += '<span>Gehalt &#8805;</span>'
+        + '<input type="number" value="'+(c.salary_threshold||75000)+'" min="0" step="1000" onchange="profileData.criteria['+i+'].salary_threshold=parseInt(this.value)||0;saveProfile()">'
+        + '<span>€ &rarr;</span>';
+    }
+    html += '<input type="number" value="'+c.points+'" min="0" max="200" onchange="profileData.criteria['+i+'].points=parseInt(this.value)||0;saveProfile()">'
+      + '<span>Pkt</span></div>'
+      + '<button class="crit-del" onclick="removeCriteria('+i+')" title="Kriterium l&ouml;schen">&#128465;</button>'
+      + '</div>';
+    if(!hasSalary){
+      html += '<div class="terms-area" id="terms-crit-'+i+'">'
+        + (c.terms||[]).map((t,ti)=>'<span class="term-pill">'+esc2(t)
+            +'<button onclick="removeTerm(\'criteria\','+i+','+ti+')" title="Entfernen">&times;</button></span>').join('')
+        + '<div class="term-add"><input type="text" id="ti-crit-'+i+'" placeholder="Begriff..." onkeydown="if(event.key===\'Enter\')addTerm(\'criteria\','+i+')">'
+        + '<button onclick="addTerm(\'criteria\','+i+')">&#65291;</button></div>'
+        + '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Neues Kriterium
+  html += '<button class="btn-ghost" style="margin-bottom:16px" onclick="addCriteria()">&#65291; Neues Kriterium</button>';
+
+  document.getElementById('scores-editor').innerHTML = html;
+}
+
+function addTerm(type, idx){
+  const id = type==='criteria' ? 'ti-crit-'+idx : 'ti-'+type;
+  const el = document.getElementById(id);
+  const val = (el.value||'').trim();
+  if(!val) return;
+  if(type==='criteria') { profileData.criteria[idx].terms = profileData.criteria[idx].terms||[]; profileData.criteria[idx].terms.push(val); }
+  else profileData[type].terms.push(val);
+  el.value='';
+  saveProfile(); renderScoresEditor();
+}
+
+function removeTerm(type, idx, ti){
+  if(type==='criteria') profileData.criteria[idx].terms.splice(ti,1);
+  else profileData[type].terms.splice(ti,1);
+  saveProfile(); renderScoresEditor();
+}
+
+function addCriteria(){
+  profileData.criteria.push({name:'neu',points:10,terms:[]});
+  saveProfile(); renderScoresEditor();
+}
+
+function removeCriteria(i){
+  profileData.criteria.splice(i,1);
+  saveProfile(); renderScoresEditor();
+}
+
+function resetProfile(){
+  localStorage.removeItem(PROFILE_KEY);
+  profileData = JSON.parse(JSON.stringify(PROFILE_SCORING));
+  renderScoresEditor();
+  const el = document.getElementById('scores-status');
+  el.textContent='Zur&uuml;ckgesetzt'; clearTimeout(el._t); el._t=setTimeout(()=>el.textContent='',2000);
+}
+
+function downloadProfile(){
+  const blob = new Blob([JSON.stringify(profileData,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'profile.json';
+  a.click();
+}
+
 jobStatus=loadStatus();
 buildSourceFilter();
 render();
@@ -232,6 +399,7 @@ HEADER = f"""<!DOCTYPE html>
   <div class="tab-nav">
     <button class="tab-btn active" onclick="showTab('overview')" id="tab-overview">&#128203; &Uuml;bersicht</button>
     <button class="tab-btn" onclick="showTab('neu')" id="tab-neu">&#127381; NEU <span id="neu-badge" style="background:#e53935;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;vertical-align:middle">0</span></button>
+    <button class="tab-btn" onclick="showTab('scores')" id="tab-scores">&#127919; Scoring</button>
   </div>
 </div>
 
@@ -266,11 +434,33 @@ HEADER = f"""<!DOCTYPE html>
   <div class="grid" id="grid-neu"></div>
 </div>
 
+<div id="page-scores" class="page">
+  <div class="scores-page">
+    <div id="scores-editor"><!-- wird per JS befuellt --></div>
+    <div class="scores-toolbar">
+      <button class="btn-ghost"   onclick="downloadProfile()">&#128190; Exportieren (profile.json)</button>
+      <button class="btn-ghost"   onclick="resetProfile()">&#8635; Auf Standard zurücksetzen</button>
+      <span class="scores-status" id="scores-status"></span>
+    </div>
+    <div style="margin-top:16px;padding:14px 16px;background:#f8f9ff;border:1px solid #e0e4f0;border-radius:10px;font-size:12px;color:#555;line-height:1.7">
+      <strong style="color:#1a1a2e">So wird der ge&auml;nderte Score zum neuen Standard:</strong><br>
+      Pfad der Quelldatei:<br>
+      <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 6px;border-radius:4px;display:inline-block;margin:4px 0">C:\\Users\\joerg\\OneDrive - die-weboptimierer\\Dokumente\\Claude\\Scheduled\\job-briefing-bewe\\profile.json</code><br><br>
+      Das ist der <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">PROFILE_PATH</code> in <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">generate.py</code>.
+      Beim n&auml;chsten Lauf von <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">generate.py</code> (t&auml;glich automatisch oder manuell)
+      wird diese Datei eingelesen und als <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">PROFILE_SCORING</code> in die HTML eingebettet &mdash;
+      das wird dann der neue &bdquo;Standard zur&uuml;cksetzen&ldquo;-Wert.<br><br>
+      <strong>Ablauf:</strong> Im Browser bearbeiten &rarr; Exportieren &rarr; Datei an obigen Pfad kopieren &rarr; <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">generate.py</code> l&auml;uft &rarr; neuer Standard ist eingebettet.
+    </div>
+  </div>
+</div>
+
 <div class="footer">Stand {TODAY} &middot; {total} Stellen &middot; {sources} Quellen &middot; automatisch generiert</div>
 <script>
 const TODAY = '{TODAY}';
 const ALL_JOBS = {jobs_json};
 const INITIAL_STATUS = {status_json};
+const PROFILE_SCORING = {profile_json};
 """
 
 FOOTER = """</script>
