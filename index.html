@@ -458,24 +458,47 @@ async function triggerWorkflow(){
   }
   const btn = document.getElementById('btn-refresh');
   const orig = btn.textContent;
+  const hdr = {'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'};
+
   btn.disabled = true; btn.textContent = '⏳ Wird gestartet…';
   try {
     const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/daily.yml/dispatches`,{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
-      body: JSON.stringify({ref:'master'})
+      method:'POST', headers:hdr, body: JSON.stringify({ref:'master'})
     });
-    if(r.status===204){
-      btn.textContent='✅ Gestartet – Seite in ~60s neu laden';
-      setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},15000);
-    } else if(r.status===401||r.status===403){
+    if(r.status===401||r.status===403){
       localStorage.removeItem(PAT_KEY);
-      btn.textContent='❌ Token fehlt Scope "workflow" – neues PAT erstellen';
-      setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},5000);
-    } else {
-      btn.textContent='❌ Fehler '+r.status;
-      setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},4000);
+      btn.textContent='❌ Token fehlt Scope "workflow"';
+      setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},5000); return;
     }
+    if(r.status!==204){ btn.textContent='❌ Fehler '+r.status; setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},4000); return; }
+
+    // Workflow gestartet – auf Run warten, dann Status pollen
+    btn.textContent = '⏳ Läuft (0s)…';
+    await new Promise(res=>setTimeout(res,8000)); // warten bis Run erscheint
+
+    const started = Date.now();
+    let elapsed = 0;
+    while(elapsed < 300000){ // max 5 Min
+      try {
+        const runsR = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/daily.yml/runs?per_page=1`,{headers:hdr});
+        const runs  = await runsR.json();
+        const run   = runs.workflow_runs && runs.workflow_runs[0];
+        if(run){
+          elapsed = Math.round((Date.now()-started)/1000);
+          if(run.status==='completed'){
+            btn.textContent = run.conclusion==='success' ? '✅ Fertig – Seite wird neu geladen…' : '❌ Workflow fehlgeschlagen';
+            if(run.conclusion==='success'){ setTimeout(()=>location.reload(), 1500); }
+            else { setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},5000); }
+            return;
+          }
+          btn.textContent = '⏳ Läuft ('+elapsed+'s)…';
+        }
+      } catch(e){}
+      await new Promise(res=>setTimeout(res,10000));
+      elapsed = Math.round((Date.now()-started)/1000);
+    }
+    btn.textContent='⚠️ Timeout – bitte manuell neu laden';
+    setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},6000);
   } catch(e){
     btn.textContent='❌ Netzwerkfehler'; setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},4000);
   }
