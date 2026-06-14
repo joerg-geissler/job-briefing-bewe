@@ -84,7 +84,7 @@
     },
     {
       "name": "munich",
-      "points": 10,
+      "points": 1,
       "terms": [
         "münchen",
         "munich",
@@ -110,7 +110,7 @@
     },
     {
       "name": "consulting",
-      "points": 8,
+      "points": 1,
       "terms": [
         "consult",
         "strategy",
@@ -123,14 +123,14 @@
     },
     {
       "name": "deutschland",
-      "points": 3,
+      "points": 1,
       "terms": [
         "deutschland"
       ]
     },
     {
       "name": "salary_bonus",
-      "points": 4,
+      "points": 1,
       "salary_threshold": 75000
     }
   ]
