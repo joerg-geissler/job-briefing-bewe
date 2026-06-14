@@ -475,10 +475,11 @@ if CLOUD_MODE and os.path.exists(OUT_PATH):
     with open(OUT_PATH, encoding='utf-8') as f:
         html = f.read()
 
-    html = re.sub(r"const TODAY = '[^']*';",        f"const TODAY = '{TODAY}';",               html)
-    html = re.sub(r'const ALL_JOBS = \[.*\];',       f'const ALL_JOBS = {jobs_json};',          html)
-    html = re.sub(r'const INITIAL_STATUS = \{.*\};', f'const INITIAL_STATUS = {status_json};',  html)
-    html = re.sub(r'const PROFILE_SCORING = \{.*\};',f'const PROFILE_SCORING = {profile_json};',html)
+    html = re.sub(r"const TODAY = '[^']*';",                f"const TODAY = '{TODAY}';",               html)
+    # ALL_JOBS kann ein- oder mehrzeilig sein – [\s\S]*? stoppt am ersten ];
+    html = re.sub(r'const ALL_JOBS = \[[\s\S]*?\];',        f'const ALL_JOBS = {jobs_json};',          html)
+    html = re.sub(r'const INITIAL_STATUS = \{[\s\S]*?\};',  f'const INITIAL_STATUS = {status_json};',  html)
+    html = re.sub(r'const PROFILE_SCORING = \{[\s\S]*?\};', f'const PROFILE_SCORING = {profile_json};',html)
     html = re.sub(r'Zuletzt: \d{4}-\d{2}-\d{2} &middot; \d+ neue Stellen heute',
                   f'Zuletzt: {TODAY} &middot; {new_today} neue Stellen heute', html)
     html = re.sub(r'Stand \d{4}-\d{2}-\d{2} &middot; \d+ Stellen &middot; \d+ Quellen',
