@@ -37,7 +37,8 @@
         "Beirat",
         "Chief",
         "VP",
-        "Abteilungsleitung"
+        "Abteilungsleitung",
+        "senior"
       ]
     },
     {
@@ -84,7 +85,7 @@
     },
     {
       "name": "munich",
-      "points": 1,
+      "points": 10,
       "terms": [
         "münchen",
         "munich",
@@ -110,7 +111,7 @@
     },
     {
       "name": "consulting",
-      "points": 1,
+      "points": 8,
       "terms": [
         "consult",
         "strategy",
@@ -123,14 +124,14 @@
     },
     {
       "name": "deutschland",
-      "points": 1,
+      "points": 3,
       "terms": [
         "deutschland"
       ]
     },
     {
       "name": "salary_bonus",
-      "points": 1,
+      "points": 4,
       "salary_threshold": 75000
     }
   ]
