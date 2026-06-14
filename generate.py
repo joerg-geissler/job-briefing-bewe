@@ -1,10 +1,10 @@
-"""
+﻿"""
 Job Briefing BEWE - Static HTML Generator
 Liest jobs_dashboard.json und erzeugt eine selbststaendige index.html fuer GitHub Pages.
 Taeglich vom Scheduled Task aufgerufen.
 """
 import json, os, re, sys
-from datetime import date
+from datetime import datetime
 
 _LOCAL_DB      = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\jobs_dashboard.json"
 _LOCAL_STATUS  = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\job_status.json"
@@ -15,7 +15,8 @@ DB_PATH      = os.environ.get("DB_PATH",      "jobs_dashboard.json" if os.path.e
 STATUS_PATH  = os.environ.get("STATUS_PATH",  "job_status.json"     if os.path.exists("job_status.json")     else _LOCAL_STATUS)
 PROFILE_PATH = os.environ.get("PROFILE_PATH", "profile.json"        if os.path.exists("profile.json")        else _LOCAL_PROFILE)
 OUT_PATH     = os.environ.get("OUT_PATH",     "index.html")
-TODAY        = date.today().isoformat()
+TODAY        = datetime.now().strftime('%Y-%m-%d')
+NOW          = datetime.now().strftime('%Y-%m-%d %H:%M')
 
 # Jobs laden
 with open(DB_PATH, encoding="utf-8-sig") as f:
@@ -395,7 +396,7 @@ HEADER = f"""<!DOCTYPE html>
 <body>
 <div class="header">
   <h1>&#127919; Job Briefing BEWE</h1>
-  <div class="sub">T&auml;glich aktualisiert &middot; Zuletzt: {TODAY} &middot; {new_today} neue Stellen heute</div>
+  <div class="sub">T&auml;glich aktualisiert &middot; Zuletzt: {NOW} &middot; {new_today} neue Stellen heute</div>
   <div class="tab-nav">
     <button class="tab-btn active" onclick="showTab('overview')" id="tab-overview">&#128203; &Uuml;bersicht</button>
     <button class="tab-btn" onclick="showTab('neu')" id="tab-neu">&#127381; NEU <span id="neu-badge" style="background:#e53935;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;vertical-align:middle">0</span></button>
@@ -480,8 +481,8 @@ if CLOUD_MODE and os.path.exists(OUT_PATH):
     html = re.sub(r'const ALL_JOBS = \[[\s\S]*?\];',        f'const ALL_JOBS = {jobs_json};',          html)
     html = re.sub(r'const INITIAL_STATUS = \{[\s\S]*?\};',  f'const INITIAL_STATUS = {status_json};',  html)
     html = re.sub(r'const PROFILE_SCORING = \{[\s\S]*?\};', f'const PROFILE_SCORING = {profile_json};',html)
-    html = re.sub(r'Zuletzt: \d{4}-\d{2}-\d{2} &middot; \d+ neue Stellen heute',
-                  f'Zuletzt: {TODAY} &middot; {new_today} neue Stellen heute', html)
+    html = re.sub(r'Zuletzt: \d{4}-\d{2}-\d{2}( \d{2}:\d{2})? &middot; \d+ neue Stellen heute',
+                  f'Zuletzt: {NOW} &middot; {new_today} neue Stellen heute', html)
     html = re.sub(r'Stand \d{4}-\d{2}-\d{2} &middot; \d+ Stellen &middot; \d+ Quellen',
                   f'Stand {TODAY} &middot; {total} Stellen &middot; {sources} Quellen', html)
 
