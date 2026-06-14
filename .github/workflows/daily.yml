@@ -52,6 +52,7 @@ jobs:
       - name: Dashboard-HTML generieren (generate.py)
         env:
           CLOUD: '1'
+          TZ: Europe/Berlin
         run: python generate.py
 
       # ── 6. Ergebnisse committen und pushen ──────────────────────────────
