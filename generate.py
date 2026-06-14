@@ -3,7 +3,7 @@ Job Briefing BEWE - Static HTML Generator
 Liest jobs_dashboard.json und erzeugt eine selbststaendige index.html fuer GitHub Pages.
 Taeglich vom Scheduled Task aufgerufen.
 """
-import json, os, sys
+import json, os, re, sys
 from datetime import date
 
 _LOCAL_DB      = r"C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\jobs_dashboard.json"
@@ -467,9 +467,29 @@ FOOTER = """</script>
 </body>
 </html>"""
 
-html = HEADER + JS + FOOTER
+CLOUD_MODE = os.environ.get('CLOUD', '0') == '1'
 
-with open(OUT_PATH, "w", encoding="utf-8") as f:
-    f.write(html)
+if CLOUD_MODE and os.path.exists(OUT_PATH):
+    # Patch-Modus: bestehende index.html mit neuen Daten aktualisieren
+    # (bewahrt alle manuellen UI-Erweiterungen wie Absender-Tab, GitHub-API-Save)
+    with open(OUT_PATH, encoding='utf-8') as f:
+        html = f.read()
 
-print(f"OK: index.html generiert - {total} Jobs, {new_today} neu heute, Stand {TODAY}")
+    html = re.sub(r"const TODAY = '[^']*';",        f"const TODAY = '{TODAY}';",               html)
+    html = re.sub(r'const ALL_JOBS = \[.*\];',       f'const ALL_JOBS = {jobs_json};',          html)
+    html = re.sub(r'const INITIAL_STATUS = \{.*\};', f'const INITIAL_STATUS = {status_json};',  html)
+    html = re.sub(r'const PROFILE_SCORING = \{.*\};',f'const PROFILE_SCORING = {profile_json};',html)
+    html = re.sub(r'Zuletzt: \d{4}-\d{2}-\d{2} &middot; \d+ neue Stellen heute',
+                  f'Zuletzt: {TODAY} &middot; {new_today} neue Stellen heute', html)
+    html = re.sub(r'Stand \d{4}-\d{2}-\d{2} &middot; \d+ Stellen &middot; \d+ Quellen',
+                  f'Stand {TODAY} &middot; {total} Stellen &middot; {sources} Quellen', html)
+
+    with open(OUT_PATH, 'w', encoding='utf-8') as f:
+        f.write(html)
+    print(f"OK: index.html gepatcht (Cloud-Modus) – {total} Jobs, {new_today} neu heute, Stand {TODAY}")
+else:
+    # Rebuild-Modus: komplette index.html aus Template neu erzeugen (lokaler Lauf)
+    html = HEADER + JS + FOOTER
+    with open(OUT_PATH, 'w', encoding='utf-8') as f:
+        f.write(html)
+    print(f"OK: index.html generiert – {total} Jobs, {new_today} neu heute, Stand {TODAY}")

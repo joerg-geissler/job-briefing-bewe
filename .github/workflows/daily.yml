@@ -50,6 +50,8 @@ jobs:
 
       # ── 5. index.html generieren ────────────────────────────────────────
       - name: Dashboard-HTML generieren (generate.py)
+        env:
+          CLOUD: '1'
         run: python generate.py
 
       # ── 6. Ergebnisse committen und pushen ──────────────────────────────
