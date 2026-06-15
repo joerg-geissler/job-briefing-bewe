@@ -147,13 +147,15 @@ Bei Fehler: kurz melden, weitermachen.
    command: python C:\Users\joerg\job-briefing-public\generate.py
    → Prüfe Output auf "OK:" — bei Fehler kurz melden und weitermachen.
 
-2. Git commit & push — WICHTIG: Kein Leerzeichen in der Commit-Message, keine Anführungszeichen:
+2. jobs_dashboard.json ins Repo kopieren und mit index.html committen:
    mcp__Desktop_Commander__start_process:
    shell: cmd
    timeout_ms: 35000
-   command: cd /d C:\Users\joerg\job-briefing-public && git add index.html && git -c core.editor=true commit -m auto-update & git push
+   command: cd /d C:\Users\joerg\job-briefing-public && copy "C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Artifacts\job-briefing-bewe\jobs_dashboard.json" jobs_dashboard.json /Y && git add index.html jobs_dashboard.json && git -c core.editor=true commit -m auto-update & git push
    HINWEIS: Einzelnes & vor git push (nicht &&) → push läuft auch wenn "nothing to commit"
    HINWEIS: git -c core.editor=true verhindert, dass ein Texteditor geöffnet wird
+   HINWEIS: Der post-commit Hook erkennt, dass nur index.html+jobs_dashboard.json committet wurden
+             (keine Config-Dateien) → kein OneDrive-Sync wird ausgelöst. Korrekt so.
 
 ═══ SCHRITT J: ABSCHLUSSBERICHT + TELEGRAM ═══
 

@@ -214,16 +214,100 @@ Pfad: `C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Scheduled\jo
 
 ---
 
+## Sync-Architektur
+
+### Zwei Quellen — klare Richtungen
+
+```
+┌─────────────────────────────┐     post-commit Hook      ┌──────────────────────────┐
+│   GitHub Repo               │ ─────────────────────────► │   OneDrive (Scheduled)   │
+│   (Source of Truth: Config) │    senders.json            │   (Source of Truth: Data)│
+│                             │    profile.json            │                          │
+│   senders.json    ◄──edit   │    SKILL.md                │   jobs_dashboard.json    │
+│   profile.json    ◄──edit   │                            │   telegram.json (Secret) │
+│   SKILL.md        ◄──edit   │                            │                          │
+│   jobs_dashboard.json       │ ◄───────────────────────── │                          │
+│   index.html                │    Scheduled Task (tägl.)  │                          │
+└─────────────────────────────┘    kopiert DB + committet  └──────────────────────────┘
+```
+
+**Regel:** Konfiguration wird im Repo bearbeitet und läuft automatisch nach OneDrive.  
+Daten (Jobs, Status) entstehen auf OneDrive und werden täglich ins Repo gepusht.
+
+### Automatischer Sync: post-commit Hook
+
+Der Hook `.git/hooks/post-commit` läuft nach jedem `git commit` automatisch.  
+Er prüft, ob `senders.json`, `profile.json` oder `SKILL.md` im Commit enthalten sind —  
+und kopiert sie dann nach OneDrive:
+
+```
+git commit -m "neuer Absender"
+  → Hook erkennt senders.json wurde geändert
+  → Kopiert senders.json, profile.json, SKILL.md → OneDrive
+  → Meldet: "Sync abgeschlossen: 3 Datei(en) nach OneDrive kopiert."
+```
+
+Auto-Update-Commits des Scheduled Tasks (nur `index.html` + `jobs_dashboard.json`) lösen **keinen** Sync aus — das ist gewollt.
+
+### Manueller Sync (falls nötig)
+
+```powershell
+# Im Repo-Verzeichnis:
+pwsh -File sync_config.ps1
+```
+
+---
+
 ## Weiterentwicklung
 
-Typische Erweiterungen:
-- **Neuen Absender hinzufügen:** Eintrag in `senders.json` + Parsing-Regel in `SKILL.md` Step D
-- **Scoring anpassen:** `profile.json` → criteria-Array bearbeiten
-- **Neues Dashboard-Feature:** `generate.py` und/oder `index.html` anpassen
-- **Zweiten Telegram-Empfänger:** `send_telegram.py` erweitern
+### Neuen Absender hinzufügen
 
-Nach jeder Änderung:
-```bash
-git add -A && git commit -m "beschreibung" && git push
-```
-Und OneDrive-Dateien manuell synchronisieren (SKILL.md, senders.json, profile.json).
+1. `senders.json` im Repo bearbeiten — neuen Eintrag hinzufügen
+2. `SKILL.md` Step D — Parsing-Regel für den neuen source-Label ergänzen
+3. Committen:
+   ```bash
+   git add senders.json SKILL.md
+   git commit -m "neuer Absender: XYZ"
+   git push
+   ```
+   → Hook kopiert automatisch nach OneDrive  
+   → Da SKILL.md geändert: Claude fragen: *"Bitte Scheduled Task job-briefing-bewe mit der SKILL.md aus dem Repo aktualisieren"*
+
+### Scoring anpassen
+
+1. `profile.json` im Repo bearbeiten (oder im Dashboard-Tab "Scoring" → Exportieren → Datei ersetzen)
+2. Committen:
+   ```bash
+   git add profile.json && git commit -m "scoring: ..." && git push
+   ```
+   → Hook kopiert automatisch nach OneDrive ✓ (kein weiterer Schritt nötig)
+
+### Dashboard-Feature oder Script ändern
+
+1. `generate.py` / `index.html` / `update_db.py` / `send_telegram.py` bearbeiten
+2. Committen und pushen — kein OneDrive-Sync nötig (diese Dateien liegen im Repo)
+
+### SKILL.md (Task-Logik) ändern
+
+1. `SKILL.md` im Repo bearbeiten
+2. Committen:
+   ```bash
+   git add SKILL.md && git commit -m "task: ..." && git push
+   ```
+   → Hook kopiert SKILL.md nach OneDrive und gibt einen Hinweis aus  
+   → **Pflichtschritt:** Claude fragen: *"Bitte Scheduled Task job-briefing-bewe mit der SKILL.md aus dem Repo aktualisieren"*  
+     (Der Scheduled Task speichert eine eigene Kopie des Prompts — diese muss manuell aktualisiert werden)
+
+---
+
+## Was du beachten musst (Kurzfassung)
+
+| Änderung | Wo bearbeiten | Danach |
+|---|---|---|
+| Neuer Absender | `senders.json` + `SKILL.md` im Repo | commit → push → Claude: Task aktualisieren |
+| Scoring | `profile.json` im Repo | commit → push (Hook erledigt Rest) |
+| Task-Logik | `SKILL.md` im Repo | commit → push → Claude: Task aktualisieren |
+| Scripts/Dashboard | Repo-Dateien | commit → push |
+| Secrets (Telegram) | OneDrive `telegram.json` | **Nicht committen!** |
+
+**Ein-Satz-Merksatz:** Config im Repo editieren, committen, pushen — der Rest passiert automatisch. Nur wenn `SKILL.md` sich ändert, muss einmalig der Scheduled Task in Claude aktualisiert werden.
