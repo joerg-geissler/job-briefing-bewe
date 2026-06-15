@@ -468,7 +468,8 @@ FOOTER = """</script>
 </body>
 </html>"""
 
-CLOUD_MODE = os.environ.get('CLOUD', '0') == '1'
+# CLOUD_MODE: nur aktiv wenn explizit CLOUD=1 gesetzt UND GITHUB_ACTIONS gesetzt (Runner-Schutz)
+CLOUD_MODE = os.environ.get('CLOUD', '0') == '1' and os.environ.get('GITHUB_ACTIONS') == 'true'
 
 if CLOUD_MODE and os.path.exists(OUT_PATH):
     # Patch-Modus: bestehende index.html mit neuen Daten aktualisieren
