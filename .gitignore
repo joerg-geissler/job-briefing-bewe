@@ -1,0 +1,13 @@
+# Secrets — niemals committen
+telegram.json
+telegram_msg.txt
+
+# SQLite-Datenbank (wird von generate.py aus jobs_dashboard.json erzeugt)
+jobs.db
+
+# Temporäre Arbeitsdateien aus Claude-Sessions
+new_jobs.json
+new_jobs_today.json
+*.pyc
+__pycache__/
+.DS_Store

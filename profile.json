@@ -2,132 +2,47 @@
   "base": 50,
   "hard_exclude": {
     "score": 5,
-    "terms": [
-      "Junior",
-      "Trainee",
-      "Praktikum",
-      "Außendienst",
-      "Reinigung",
-      "Lager",
-      "Gasoline"
-    ]
+    "terms": ["Junior", "Trainee", "Praktikum", "Außendienst", "Reinigung", "Lager", "Gasoline"]
   },
   "tech_exclude": {
     "score": 10,
-    "terms": [
-      "C++",
-      "Java backend",
-      "Golang",
-      "DevOps",
-      "SAP Basis",
-      "ML Engineer"
-    ]
+    "terms": ["C++", "Java backend", "Golang", "DevOps", "SAP Basis", "ML Engineer"]
   },
   "criteria": [
     {
       "name": "senior",
       "points": 15,
-      "terms": [
-        "Director",
-        "Head of",
-        "Lead",
-        "GF",
-        "Interim",
-        "Advisor",
-        "Beirat",
-        "Chief",
-        "VP",
-        "Abteilungsleitung",
-        "senior"
-      ]
+      "terms": ["Director", "Head of", "Lead", "GF", "Interim", "Advisor", "Beirat", "Chief", "VP", "Abteilungsleitung"]
     },
     {
       "name": "marketing",
-      "points": 20,
-      "terms": [
-        "Marketing",
-        "Digital",
-        "Growth",
-        "Brand",
-        "SEO",
-        "SEA",
-        "CRO",
-        "UX",
-        "Content",
-        "Performance",
-        "CRM",
-        "Communications",
-        "PR",
-        "Werbung",
-        "freelance"
-      ]
+      "points": 15,
+      "terms": ["Marketing", "Digital", "Growth", "Brand", "SEO", "SEA", "CRO", "UX", "Content", "Performance", "CRM", "Communications", "PR", "Werbung"]
     },
     {
       "name": "meaning",
       "points": 20,
-      "terms": [
-        "impact",
-        "sinn",
-        "nachhaltig",
-        "sustain",
-        "non-profit",
-        "ngo",
-        "sozial",
-        "stiftung",
-        "bildung",
-        "pflege",
-        "care",
-        "klima",
-        "charity",
-        "gemeinnützig",
-        "e.V."
-      ]
+      "terms": ["impact", "sinn", "nachhaltig", "sustain", "non-profit", "ngo", "sozial", "stiftung", "bildung", "pflege", "care", "klima", "charity", "gemeinnützig", "e.V."]
     },
     {
       "name": "munich",
       "points": 10,
-      "terms": [
-        "münchen",
-        "munich",
-        "garching",
-        "oberhaching",
-        "ismaning",
-        "karlsfeld",
-        "gräfelfing",
-        "olching",
-        "planegg",
-        "starnberg",
-        "otterfing"
-      ]
+      "terms": ["münchen", "munich", "garching", "oberhaching", "ismaning", "karlsfeld", "gräfelfing", "olching", "planegg", "starnberg", "otterfing"]
     },
     {
       "name": "remote",
-      "points": 15,
-      "terms": [
-        "remote",
-        "homeoffice",
-        "home office"
-      ]
+      "points": 8,
+      "terms": ["remote", "homeoffice", "home office"]
     },
     {
       "name": "consulting",
       "points": 8,
-      "terms": [
-        "consult",
-        "strategy",
-        "beratung",
-        "interim",
-        "fractional",
-        "advisor",
-        "berater"
-      ]
+      "terms": ["consult", "strategy", "beratung", "interim", "fractional", "advisor", "berater"]
     },
     {
       "name": "deutschland",
       "points": 3,
-      "terms": [
-        "deutschland"
-      ]
+      "terms": ["deutschland"]
     },
     {
       "name": "salary_bonus",

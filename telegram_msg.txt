@@ -1,1 +1,0 @@
-🔧 Test: send_telegram.py läuft direkt via Python – kein Chrome mehr nötig.

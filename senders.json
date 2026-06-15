@@ -35,8 +35,13 @@
     "description": "Experteer Executive-Stellen – HOCHRELEVANT"
   },
   {
-    "sender": "jobs-noreply@linkedin.com",
-    "source": "Linkediin",
-    "description": ""
+    "sender": "jobalerts-noreply@linkedin.com",
+    "source": "LinkedIn",
+    "description": "LinkedIn Job-Alert-Digests (nur echte Digests auswerten, 'has been created'-Mails überspringen)"
+  },
+  {
+    "sender": "jobs-listings@linkedin.com",
+    "source": "LinkedIn",
+    "description": "LinkedIn Job-Matches – subject: 'You may be a fit for [Firma]s [Titel] role', pub_date aus bodyPreview 'Posted on MM/DD/YYYY'"
   }
 ]
