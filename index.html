@@ -1,4 +1,17 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html><script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Job Briefing Bewe",
+  "schemaVersion": 1,
+  "mcpTools": [
+    "mcp__Desktop_Commander__read_file",
+    "mcp__Desktop_Commander__write_file"
+  ],
+  "mcpServerNames": [
+    "Desktop_Commander",
+    "Desktop_Commander"
+  ]
+}
+</script>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -87,16 +100,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .scores-status{font-size:12px;color:#2e7d32;align-self:center}
 .base-row{display:flex;align-items:center;gap:10px;padding:12px 16px}
 .base-row label{font-size:13px;color:#555;flex:1}
+.senders-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:4px}
+.senders-table th{text-align:left;padding:8px 10px;background:#f8f9ff;border-bottom:2px solid #e0e4f0;font-size:12px;color:#555;font-weight:700}
+.senders-table td{padding:5px 6px;border-bottom:1px solid #f0f0f0}
+.senders-table td input[type=text]{border:1px solid #e0e0e0;border-radius:6px;padding:5px 8px;font-size:12px;width:100%;outline:none;min-width:0;background:white}
+.senders-table td input[type=text]:focus{border-color:#4a6cf7;box-shadow:0 0 0 2px rgba(74,108,247,.1)}
+.sender-del{border:none;background:none;cursor:pointer;color:#ccc;font-size:15px;padding:2px 6px;border-radius:5px;transition:all .15s}
+.sender-del:hover{background:#fde8ea;color:#e63946}
+.config-path{font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 6px;border-radius:4px;display:inline-block;word-break:break-all}
 </style>
 </head>
 <body>
 <div class="header">
   <h1>&#127919; Job Briefing BEWE</h1>
-  <div class="sub">T&auml;glich aktualisiert &middot; Zuletzt: 2026-06-15 09:13 &middot; 0 neue Stellen heute</div>
+  <div class="sub">T&auml;glich aktualisiert &middot; Zuletzt: 2026-06-15 09:20 &middot; 0 neue Stellen heute</div>
   <div class="tab-nav">
     <button class="tab-btn active" onclick="showTab('overview')" id="tab-overview">&#128203; &Uuml;bersicht</button>
     <button class="tab-btn" onclick="showTab('neu')" id="tab-neu">&#127381; NEU <span id="neu-badge" style="background:#e53935;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;vertical-align:middle">0</span></button>
     <button class="tab-btn" onclick="showTab('scores')" id="tab-scores">&#127919; Scoring</button>
+    <button class="tab-btn" onclick="showTab('absender')" id="tab-absender">&#9881;&#65039; Absender</button>
   </div>
 </div>
 
@@ -114,7 +136,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <option value="date">Datum neu-alt</option>
     <option value="title">Titel A-Z</option>
   </select>
-  <div class="stats"><span id="dataInfo">-</span></div>
+  <div class="stats">
+    <span id="dataInfo">-</span>
+    <button id="btn-refresh" class="btn-ghost" style="font-size:12px;padding:5px 12px;margin-left:8px" onclick="triggerWorkflow()">&#128260; Aktualisieren</button>
+  </div>
 </div>
 <div class="status-filter">
   <button class="sf-btn active" data-sf="active"   onclick="setStatusFilter('active')">&#128269; Aktiv <span class="sf-cnt" id="cnt-active">0</span></button>
@@ -135,23 +160,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="scores-page">
     <div id="scores-editor"><!-- wird per JS befuellt --></div>
     <div class="scores-toolbar">
-      <button class="btn-ghost"   onclick="downloadProfile()">&#128190; Exportieren (profile.json)</button>
+      <button class="btn-primary" onclick="saveProfileToDisk()">&#128190; Speichern</button>
       <button class="btn-ghost"   onclick="resetProfile()">&#8635; Auf Standard zurücksetzen</button>
       <span class="scores-status" id="scores-status"></span>
-    </div>
-    <div style="margin-top:16px;padding:14px 16px;background:#f8f9ff;border:1px solid #e0e4f0;border-radius:10px;font-size:12px;color:#555;line-height:1.7">
-      <strong style="color:#1a1a2e">So wird der ge&auml;nderte Score zum neuen Standard:</strong><br>
-      Pfad der Quelldatei:<br>
-      <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 6px;border-radius:4px;display:inline-block;margin:4px 0">C:\Users\joerg\OneDrive - die-weboptimierer\Dokumente\Claude\Scheduled\job-briefing-bewe\profile.json</code><br><br>
-      Das ist der <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">PROFILE_PATH</code> in <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">generate.py</code>.
-      Beim n&auml;chsten Lauf von <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">generate.py</code> (t&auml;glich automatisch oder manuell)
-      wird diese Datei eingelesen und als <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">PROFILE_SCORING</code> in die HTML eingebettet &mdash;
-      das wird dann der neue &bdquo;Standard zur&uuml;cksetzen&ldquo;-Wert.<br><br>
-      <strong>Ablauf:</strong> Im Browser bearbeiten &rarr; Exportieren &rarr; Datei an obigen Pfad kopieren &rarr; <code style="font-size:11px;background:#eef1ff;color:#3a3a8a;padding:2px 4px;border-radius:4px">generate.py</code> l&auml;uft &rarr; neuer Standard ist eingebettet.
     </div>
   </div>
 </div>
 
+<div id="page-absender" class="page">
+  <div class="scores-page">
+    <p class="config-path" style="font-size:14px;font-weight:700;color:#1a1a2e;background:none;padding:0;margin-bottom:6px">&#9881;&#65039; Absender-Konfiguration</p>
+    <p style="font-size:12px;color:#888;margin-bottom:16px;line-height:1.6">
+      Welche E-Mail-Absender werden fuer Job-Alerts gescannt. Aenderungen werden direkt in
+      <code class="config-path">senders.json</code> gespeichert und beim naechsten automatischen Lauf verwendet.
+    </p>
+    <div id="senders-table-wrap"><!-- wird per JS befuellt --></div>
+    <div class="scores-toolbar" style="margin-top:14px">
+      <button class="btn-ghost" onclick="addSender()">&#65291; Absender hinzufuegen</button>
+      <button class="btn-primary" onclick="saveSendersToDisk()">&#128190; Speichern</button>
+      <span class="scores-status" id="senders-status"></span>
+      <span style="margin-left:auto;font-size:11px;color:#aaa"><a href="#" onclick="clearGithubToken();return false" style="color:#aaa">GitHub-Token zuruecksetzen</a></span>
+    </div>
+  </div>
+</div>
 <div class="footer">Stand 2026-06-15 &middot; 256 Stellen &middot; 7 Quellen &middot; automatisch generiert</div>
 <script>
 const TODAY = '2026-06-15';
@@ -190,7 +221,8 @@ function showTab(name){
   document.getElementById('page-'+name).classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='neu')    renderNeu();
-  if(name==='scores') renderScoresEditor();
+  if(name==='scores'){ renderScoresEditor(); loadProfileFromDisk(); }
+  if(name==='absender') loadSendersFromDisk();
 }
 
 function renderCard(j){
@@ -406,6 +438,213 @@ function downloadProfile(){
   a.click();
 }
 
+// ── GitHub API + Disk I/O ──
+const REPO             = 'joerg-geissler/job-briefing-bewe';
+const PROFILE_GH_PATH  = 'profile.json';
+const SENDERS_GH_PATH  = 'senders.json';
+const PROFILE_LOCAL_PATH = 'C:\\Users\\joerg\\OneDrive - die-weboptimierer\\Dokumente\\Claude\\Scheduled\\job-briefing-bewe\\profile.json';
+const SENDERS_LOCAL_PATH = 'C:\\Users\\joerg\\OneDrive - die-weboptimierer\\Dokumente\\Claude\\Scheduled\\job-briefing-bewe\\senders.json';
+const PAT_KEY = 'bewe_github_pat';
+
+function getGithubToken(){ return localStorage.getItem(PAT_KEY)||''; }
+function clearGithubToken(){ localStorage.removeItem(PAT_KEY); alert('Token geloescht. Beim naechsten Speichern neu eingeben.'); }
+
+async function triggerWorkflow(){
+  let token = getGithubToken();
+  if(!token){
+    token = prompt('GitHub Personal Access Token eingeben\n(Scope benoetigt: public_repo + workflow):');
+    if(!token) return;
+    localStorage.setItem(PAT_KEY, token.trim()); token = token.trim();
+  }
+  const btn = document.getElementById('btn-refresh');
+  const orig = btn.textContent;
+  const hdr = {'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'};
+
+  btn.disabled = true; btn.textContent = '⏳ Wird gestartet…';
+  try {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/daily.yml/dispatches`,{
+      method:'POST', headers:hdr, body: JSON.stringify({ref:'master'})
+    });
+    if(r.status===401||r.status===403){
+      localStorage.removeItem(PAT_KEY);
+      btn.textContent='❌ Token fehlt Scope "workflow"';
+      setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},5000); return;
+    }
+    if(r.status!==204){ btn.textContent='❌ Fehler '+r.status; setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},4000); return; }
+
+    // Workflow gestartet – auf Run warten, dann Status pollen
+    btn.textContent = '⏳ Läuft (0s)…';
+    await new Promise(res=>setTimeout(res,8000)); // warten bis Run erscheint
+
+    const started = Date.now();
+    let elapsed = 0;
+    while(elapsed < 300000){ // max 5 Min
+      try {
+        const runsR = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/daily.yml/runs?per_page=1`,{headers:hdr});
+        const runs  = await runsR.json();
+        const run   = runs.workflow_runs && runs.workflow_runs[0];
+        if(run){
+          elapsed = Math.round((Date.now()-started)/1000);
+          if(run.status==='completed'){
+            btn.textContent = run.conclusion==='success' ? '✅ Fertig – Seite wird neu geladen…' : '❌ Workflow fehlgeschlagen';
+            if(run.conclusion==='success'){ setTimeout(()=>location.reload(), 1500); }
+            else { setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},5000); }
+            return;
+          }
+          btn.textContent = '⏳ Läuft ('+elapsed+'s)…';
+        }
+      } catch(e){}
+      await new Promise(res=>setTimeout(res,10000));
+      elapsed = Math.round((Date.now()-started)/1000);
+    }
+    btn.textContent='⚠️ Timeout – bitte manuell neu laden';
+    setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},6000);
+  } catch(e){
+    btn.textContent='❌ Netzwerkfehler'; setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},4000);
+  }
+}
+
+async function githubRaw(ghPath){
+  const r = await fetch(`https://raw.githubusercontent.com/${REPO}/master/${ghPath}?t=${Date.now()}`);
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.text();
+}
+
+async function githubSave(ghPath, content){
+  let token = getGithubToken();
+  if(!token){
+    token = prompt('GitHub Personal Access Token eingeben\n(einmalig – wird sicher im Browser gespeichert):');
+    if(!token) throw new Error('Kein Token');
+    localStorage.setItem(PAT_KEY, token.trim()); token = token.trim();
+  }
+  const api = `https://api.github.com/repos/${REPO}/contents/${ghPath}`;
+  const hdr = {'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'};
+  const getR = await fetch(api,{headers:hdr});
+  if(getR.status===401){localStorage.removeItem(PAT_KEY);throw new Error('Token ungueltig – bitte neu eingeben');}
+  if(!getR.ok) throw new Error('GitHub GET: '+getR.status);
+  const {sha} = await getR.json();
+  const enc = btoa(unescape(encodeURIComponent(content)));
+  const putR = await fetch(api,{method:'PUT',headers:hdr,body:JSON.stringify({
+    message:`update ${ghPath} via dashboard [${new Date().toISOString().slice(0,10)}]`,
+    content:enc, sha
+  })});
+  if(!putR.ok) throw new Error('GitHub PUT: '+putR.status);
+}
+
+// ── Profil laden ──
+async function loadProfileFromDisk(){
+  try {
+    const raw = await githubRaw(PROFILE_GH_PATH);
+    profileData = JSON.parse(raw);
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(profileData));
+    if(document.getElementById('page-scores').classList.contains('active')) renderScoresEditor();
+  } catch(e){
+    if(window.cowork&&window.cowork.callMcpTool){
+      try{
+        const r=await window.cowork.callMcpTool('mcp__Desktop_Commander__read_file',{path:PROFILE_LOCAL_PATH});
+        const raw=(r.content&&r.content[0]&&r.content[0].text)||'';
+        if(raw){profileData=JSON.parse(raw);localStorage.setItem(PROFILE_KEY,JSON.stringify(profileData));if(document.getElementById('page-scores').classList.contains('active'))renderScoresEditor();}
+      }catch(e2){}
+    }
+  }
+}
+
+// ── Profil speichern ──
+async function saveProfileToDisk(){
+  const el=document.getElementById('scores-status');
+  el.textContent='⏳ Speichere...';
+  const content=JSON.stringify(profileData,null,2);
+  try{
+    if(window.cowork&&window.cowork.callMcpTool){
+      const r=await window.cowork.callMcpTool('mcp__Desktop_Commander__write_file',{path:PROFILE_LOCAL_PATH,content});
+      if(r.isError) throw new Error(r.content?.[0]?.text||'Fehler');
+      el.textContent='✅ Lokal gespeichert';
+      githubSave(PROFILE_GH_PATH,content).catch(()=>{});
+    } else {
+      await githubSave(PROFILE_GH_PATH,content);
+      el.textContent='✅ In GitHub gespeichert';
+    }
+  }catch(e){el.textContent='❌ '+e.message;}
+  clearTimeout(el._t);el._t=setTimeout(()=>el.textContent='',4000);
+  saveProfile();
+}
+
+// ── Absender-Editor ──
+let sendersData = [];
+
+async function loadSendersFromDisk(){
+  const el=document.getElementById('senders-status');
+  if(el) el.textContent='⏳ Lade...';
+  try{
+    const raw=await githubRaw(SENDERS_GH_PATH);
+    sendersData=JSON.parse(raw);
+    if(el) el.textContent='';
+  }catch(e){
+    if(window.cowork&&window.cowork.callMcpTool){
+      try{
+        const r=await window.cowork.callMcpTool('mcp__Desktop_Commander__read_file',{path:SENDERS_LOCAL_PATH});
+        const raw=(r.content&&r.content[0]&&r.content[0].text)||'';
+        sendersData=raw?JSON.parse(raw):[];
+        if(el) el.textContent='';
+      }catch(e2){if(el)el.textContent='⚠️ Laden fehlgeschlagen';sendersData=[];}
+    }else{if(el)el.textContent='⚠️ Laden fehlgeschlagen';sendersData=[];}
+  }
+  renderSendersEditor();
+}
+
+async function saveSendersToDisk(){
+  const el=document.getElementById('senders-status');
+  el.textContent='⏳ Speichere...';
+  const content=JSON.stringify(sendersData,null,2);
+  try{
+    if(window.cowork&&window.cowork.callMcpTool){
+      const r=await window.cowork.callMcpTool('mcp__Desktop_Commander__write_file',{path:SENDERS_LOCAL_PATH,content});
+      if(r.isError) throw new Error(r.content?.[0]?.text||'Fehler');
+      el.textContent='✅ Lokal gespeichert';
+      githubSave(SENDERS_GH_PATH,content).catch(()=>{});
+    }else{
+      await githubSave(SENDERS_GH_PATH,content);
+      el.textContent='✅ In GitHub gespeichert';
+    }
+  }catch(e){el.textContent='❌ '+e.message;}
+  clearTimeout(el._t);el._t=setTimeout(()=>el.textContent='',4000);
+}
+
+function renderSendersEditor(){
+  const c=document.getElementById('senders-table-wrap');
+  if(!c) return;
+  if(!sendersData.length){
+    c.innerHTML='<div style="padding:20px;text-align:center;color:#bbb;font-size:13px;background:white;border-radius:10px;border:2px dashed #e8e8e8">Noch keine Absender – fuege den ersten hinzu.</div>';
+    return;
+  }
+  let html='<table class="senders-table"><thead><tr><th style="width:36%">Absender-E-Mail</th><th style="width:18%">Quell-Label</th><th>Beschreibung</th><th style="width:40px"></th></tr></thead><tbody>';
+  sendersData.forEach((s,i)=>{
+    html+='<tr>'
+      +'<td><input type="text" value="'+esc2(s.sender||'')+'" onchange="sendersData['+i+'].sender=this.value" placeholder="email@domain.com"></td>'
+      +'<td><input type="text" value="'+esc2(s.source||'')+'" onchange="sendersData['+i+'].source=this.value" placeholder="Label"></td>'
+      +'<td><input type="text" value="'+esc2(s.description||'')+'" onchange="sendersData['+i+'].description=this.value" placeholder="Beschreibung (optional)"></td>'
+      +'<td><button class="sender-del" onclick="removeSender('+i+')" title="Entfernen">&#128465;</button></td>'
+      +'</tr>';
+  });
+  html+='</tbody></table>';
+  c.innerHTML=html;
+}
+
+function addSender(){
+  sendersData.push({sender:'',source:'',description:''});
+  renderSendersEditor();
+  setTimeout(()=>{
+    const rows=document.querySelectorAll('.senders-table tbody tr');
+    const last=rows[rows.length-1];
+    if(last){const inp=last.querySelector('input');if(inp)inp.focus();}
+  },50);
+}
+
+function removeSender(i){
+  if(!confirm('Absender "'+sendersData[i].sender+'" entfernen?')) return;
+  sendersData.splice(i,1);
+  renderSendersEditor();
+}
 jobStatus=loadStatus();
 buildSourceFilter();
 render();
