@@ -20,12 +20,14 @@ TODAY        = date.today().isoformat()
 SYSTEM_PROMPT = """Du bist ein Job-Extraktions-Assistent. Du bekommst E-Mail-Daten (subject + bodyPreview) von Job-Alert-Diensten und extrahierst daraus Stellenangebote.
 
 PARSING-REGELN nach source-Label:
-- "#GOOGLE": bodyPreview enthaelt "Titel\nFirma\nOrt\nueber Quelle\nDatum" - alle Bloecke extrahieren, Datum als pub_date.
+- "#GOOGLE": bodyPreview enthaelt "Titel\nFirma\nOrt\nueber Quelle\nDatum" - alle Bloecke extrahieren. pub_date: Datum nach der Quellenzeile (z.B. "20. Mai" -> aktuelles Jahr + MM-DD, Monatsnamen: Jan=01, Feb=02, Maer=03, Apr=04, Mai=05, Jun=06, Jul=07, Aug=08, Sep=09, Okt=10, Nov=11, Dez=12).
 - "Indeed Alert" / "Indeed Archiv": subject zeigt Jobtitel-Liste, bodyPreview zeigt ersten Job mit Firma/Ort.
 - "Indeed Match": subject = "Jobtitel bei Firma" -> Titel + Firma direkt extrahieren.
 - "Experteer": subject = Jobtitel, bodyPreview mit Firma/Ort.
 - "Stepstone": "Deine Chancen stehen gut" im subject -> extrahieren; "X Firmen suchen..." -> ueberspringen.
 - "Xing": subject + bodyPreview, oft mit Gehalt.
+- "LinkedIn" (source enthaelt "LinkedIn", Absender jobs-listings@linkedin.com): subject-Muster "You may be a fit for [Firma]'s [Titel] role" -> Firma: Text zwischen "for " und "'s " | Titel: Text zwischen "'s " und " role". pub_date: "Posted on M/D/YYYY" aus bodyPreview -> YYYY-MM-DD umrechnen (z.B. "6/10/2026" -> "2026-06-10"). Falls kein "Posted on" -> pub_date: "".
+- "LinkedIn" (Absender jobalerts-noreply@linkedin.com): subject/bodyPreview enthaelt "has been created" oder "See your latest job matches" ohne echten Jobtitel -> Mail komplett ueberspringen. Sonst echte Jobtitel extrahieren.
 - Alle anderen: subject + bodyPreview generisch auswerten.
 
 Fuer jede extrahierte Stelle ein Objekt:
@@ -34,6 +36,7 @@ Fuer jede extrahierte Stelle ein Objekt:
   "company": "Firmenname oder leer",
   "location": "Ort oder leer",
   "salary_text": "Gehaltsangabe oder leer",
+  "source": "source-Label aus der E-Mail (z.B. 'LinkedIn', '#GOOGLE', 'Indeed Alert')",
   "pub_date": "YYYY-MM-DD oder leer",
   "mail_date": "YYYY-MM-DD (aus receivedDateTime)"
 }
@@ -118,6 +121,7 @@ def main():
         for job in jobs:
             job.setdefault("url", "")
             job.setdefault("salary_val", 0)
+            job.setdefault("source", "")
             job["date_added"] = TODAY
             job["score"] = score_job(job, profile)
             key = f"{job.get('company','')}|{job.get('title','')}|{job.get('location','')}".lower()
