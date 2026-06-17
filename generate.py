@@ -441,6 +441,7 @@ HEADER = f"""<!DOCTYPE html>
   <div class="scores-page">
     <div id="scores-editor"><!-- wird per JS befuellt --></div>
     <div class="scores-toolbar">
+      <button class="btn-ghost" onclick="saveProfile()" style="background:#202124;color:#fff;border-color:#202124">&#128190; Speichern</button>
       <button class="btn-ghost"   onclick="downloadProfile()">&#128190; Exportieren (profile.json)</button>
       <button class="btn-ghost"   onclick="resetProfile()">&#8635; Auf Standard zurücksetzen</button>
       <span class="scores-status" id="scores-status"></span>
