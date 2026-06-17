@@ -396,7 +396,9 @@ HEADER = f"""<!DOCTYPE html>
 <body>
 <div class="header">
   <h1>&#127919; Job Briefing BEWE</h1>
-  <div class="sub">T&auml;glich aktualisiert &middot; Zuletzt: {NOW} &middot; {new_today} neue Stellen heute</div>
+  <div class="sub">T&auml;glich aktualisiert &middot; Zuletzt: {NOW} &middot; {new_today} neue Stellen heute
+    <button onclick="location.reload(true)" title="Seite neu laden" style="margin-left:10px;font-family:Roboto,Arial,sans-serif;font-size:12px;color:#5F6368;background:#F1F3F4;border:1px solid #DADCE0;border-radius:6px;padding:3px 10px;cursor:pointer;vertical-align:middle">&#128260; Aktualisieren</button>
+  </div>
   <div class="tab-nav">
     <button class="tab-btn active" onclick="showTab('overview')" id="tab-overview">&#128203; &Uuml;bersicht</button>
     <button class="tab-btn" onclick="showTab('neu')" id="tab-neu">&#127381; NEU <span id="neu-badge" style="background:#e53935;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;vertical-align:middle">0</span></button>
