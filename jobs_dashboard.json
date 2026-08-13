@@ -1,5 +1,31 @@
 [
     {
+        "title": "UX / UI Designer",
+        "company": "Titanom Solutions GmbH",
+        "location": "München",
+        "url": "",
+        "salary_text": "45.000 € – 50.000 € pro Jahr",
+        "salary_val": 0,
+        "source": "Indeed Alert",
+        "date_added": "2026-08-13",
+        "pub_date": "",
+        "mail_date": "2026-08-12",
+        "score": 75
+    },
+    {
+        "title": "Texter",
+        "company": "brand.david Kommunikation GmbH",
+        "location": "",
+        "url": "",
+        "salary_text": "",
+        "salary_val": 0,
+        "source": "Indeed Match",
+        "date_added": "2026-08-13",
+        "pub_date": "",
+        "mail_date": "2026-08-13",
+        "score": 50
+    },
+    {
         "title": "Head of Governmental and Institutional Affairs (w/m/d) Interessensvertretung im politischen Kontext",
         "company": "MBDA Deutschland GmbH",
         "location": "Deutschland",
