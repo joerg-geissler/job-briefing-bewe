@@ -129,6 +129,7 @@ def main():
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     new_jobs = []
+    batch_errors = []
     BATCH = 10
 
     for i in range(0, len(emails), BATCH):
@@ -138,6 +139,7 @@ def main():
             jobs = extract_batch(client, batch)
         except Exception as e:
             print(f"  FEHLER Batch {i//BATCH + 1}: {e}", file=sys.stderr)
+            batch_errors.append(str(e))
             continue
 
         for job in jobs:
@@ -168,6 +170,11 @@ def main():
     print(f"EXTRACT_DONE: new={len(new_jobs)} total={total} top={top_str}")
 
     # Telegram-Nachricht vorbereiten
+    if batch_errors:
+        n_batches = (len(emails) + BATCH - 1) // BATCH
+        reason = "API-Guthaben aufgebraucht" if "credit balance" in batch_errors[0] else batch_errors[0][:80]
+        extract_warn = f"Auswertung fehlgeschlagen ({len(batch_errors)}/{n_batches} Batches): {reason}"
+        warning = f"{warning} | {extract_warn}" if warning else extract_warn
     msg = (
         (f"⚠️ {warning} | " if warning else "") +
         f"✅ Job-Briefing {TODAY} — {len(new_jobs)} neue Stellen | "
