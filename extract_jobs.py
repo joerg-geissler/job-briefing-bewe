@@ -15,6 +15,7 @@ ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 EMAILS_PATH  = os.environ.get("EMAILS_PATH",  "fetched_emails.json")
 DB_PATH      = os.environ.get("DB_PATH",      "jobs_dashboard.json")
 PROFILE_PATH = os.environ.get("PROFILE_PATH", "profile.json")
+STATUS_PATH  = os.environ.get("STATUS_PATH",  "fetch_status.json")
 TODAY        = date.today().isoformat()
 
 SYSTEM_PROMPT = """Du bist ein Job-Extraktions-Assistent. Du bekommst E-Mail-Daten (subject + bodyPreview) von Job-Alert-Diensten und extrahierst daraus Stellenangebote.
@@ -83,14 +84,35 @@ def extract_batch(client, emails_batch):
     return json.loads(raw)
 
 
+def fetch_warning():
+    """Liefert einen Warnhinweis, falls beim Mail-Abruf Absender fehlgeschlagen sind."""
+    try:
+        with open(STATUS_PATH, encoding="utf-8") as f:
+            status = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return ""
+    errors = status.get("errors", [])
+    if not errors:
+        return ""
+    codes = sorted({str(e.get("status") or "?") for e in errors})
+    return f"{len(errors)}/{status.get('senders', '?')} Absender fehlgeschlagen (HTTP {', '.join(codes)})"
+
+
 def main():
     with open(EMAILS_PATH, encoding="utf-8") as f:
         emails = json.load(f)
 
+    warning = fetch_warning()
+
     if not emails:
         print("Keine E-Mails zum Verarbeiten.")
+        if warning:
+            msg = (f"⚠️ Job-Briefing {TODAY} — Mail-Abruf fehlgeschlagen: {warning}. "
+                   f"Graph-API-Berechtigung (Mail.Read) pruefen.")
+        else:
+            msg = f"ℹ️ Job-Briefing {TODAY} — Keine neuen E-Mails."
         with open("telegram_msg.txt", "w", encoding="utf-8") as f:
-            f.write(f"ℹ️ Job-Briefing {TODAY} — Keine neuen E-Mails.")
+            f.write(msg[:300])
         return
 
     with open(DB_PATH, encoding="utf-8") as f:
@@ -147,6 +169,7 @@ def main():
 
     # Telegram-Nachricht vorbereiten
     msg = (
+        (f"⚠️ {warning} | " if warning else "") +
         f"✅ Job-Briefing {TODAY} — {len(new_jobs)} neue Stellen | "
         f"Gesamt: {total} | Top: {top_str}. "
         f"Dashboard: https://joerg-geissler.github.io/job-briefing-bewe/"

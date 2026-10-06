@@ -18,6 +18,7 @@ CLIENT_SECRET = os.environ["AZURE_CLIENT_SECRET"]
 OUTLOOK_USER  = os.environ["OUTLOOK_USER"]
 SENDERS_PATH  = os.environ.get("SENDERS_PATH", "senders.json")
 OUTPUT_PATH   = "fetched_emails.json"
+STATUS_PATH   = "fetch_status.json"
 DAYS_BACK     = int(os.environ.get("DAYS_BACK", "2"))
 
 
@@ -65,6 +66,7 @@ def main():
     print("  Token OK")
 
     all_emails = []
+    errors = []
     for s in senders:
         try:
             emails = fetch_for_sender(token, s["sender"], s["source"])
@@ -72,11 +74,17 @@ def main():
             all_emails.extend(emails)
         except Exception as e:
             print(f"  FEHLER {s['source']}: {e}", file=sys.stderr)
+            status = getattr(getattr(e, "response", None), "status_code", None)
+            errors.append({"sender": s["sender"], "source": s["source"], "status": status, "error": str(e)[:200]})
 
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(all_emails, f, ensure_ascii=False, indent=2)
 
-    print(f"FETCH_DONE: {len(all_emails)} E-Mails von {len(senders)} Absendern -> {OUTPUT_PATH}")
+    with open(STATUS_PATH, "w", encoding="utf-8") as f:
+        json.dump({"senders": len(senders), "errors": errors}, f, ensure_ascii=False, indent=2)
+
+    print(f"FETCH_DONE: {len(all_emails)} E-Mails von {len(senders)} Absendern -> {OUTPUT_PATH}"
+          f" ({len(errors)} Fehler)")
 
 
 if __name__ == "__main__":
