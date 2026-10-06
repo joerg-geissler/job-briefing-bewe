@@ -38,12 +38,15 @@ def fetch_for_sender(token, sender_email, source_label):
     since = (datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)).strftime("%Y-%m-%dT%H:%M:%SZ")
     url = f"https://graph.microsoft.com/v1.0/users/{OUTLOOK_USER}/messages"
     params = {
-        "$filter":  f"from/emailAddress/address eq '{sender_email}' and receivedDateTime ge {since}",
+        # receivedDateTime muss im Filter vorne stehen, sonst lehnt Graph $orderby mit 400 ab
+        "$filter":  f"receivedDateTime ge {since} and from/emailAddress/address eq '{sender_email}'",
         "$select":  "subject,bodyPreview,receivedDateTime,from",
         "$top":     25,
         "$orderby": "receivedDateTime desc",
     }
     r = requests.get(url, headers={"Authorization": f"Bearer {token}"}, params=params)
+    if not r.ok:
+        print(f"  Graph-Antwort {r.status_code}: {r.text[:300]}", file=sys.stderr)
     r.raise_for_status()
     msgs = r.json().get("value", [])
     return [
