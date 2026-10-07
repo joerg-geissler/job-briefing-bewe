@@ -1,5 +1,44 @@
 [
     {
+        "title": "Video Sales Lead, YouTube DACH (German, English)",
+        "company": "Google",
+        "location": "München, Deutschland",
+        "url": "",
+        "salary_text": "",
+        "salary_val": 0,
+        "source": "#GOOGLE",
+        "date_added": "2026-10-07",
+        "pub_date": "2026-10-06",
+        "mail_date": "2026-10-07",
+        "score": 78
+    },
+    {
+        "title": "Senior SEA Manager (m/f/d)",
+        "company": "Westwing Group SE",
+        "location": "München",
+        "url": "",
+        "salary_text": "",
+        "salary_val": 0,
+        "source": "Indeed Alert",
+        "date_added": "2026-10-07",
+        "pub_date": "",
+        "mail_date": "2026-10-07",
+        "score": 75
+    },
+    {
+        "title": "(Senior) Projektmanager (m/w/d) Interne Kommunikation",
+        "company": "L'Osteria - DE - Company",
+        "location": "Deutschland",
+        "url": "",
+        "salary_text": "",
+        "salary_val": 0,
+        "source": "Indeed Alert",
+        "date_added": "2026-10-07",
+        "pub_date": "",
+        "mail_date": "2026-10-06",
+        "score": 68
+    },
+    {
         "title": "Senior Sales Manager - Shopper Activation (m/w/d)",
         "company": "Verve",
         "location": "München",
