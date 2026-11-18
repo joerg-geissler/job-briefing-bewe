@@ -1,5 +1,31 @@
 [
     {
+        "title": "Industry Manager, Retail, Groceries (English, German)",
+        "company": "Google",
+        "location": "München, Deutschland",
+        "url": "",
+        "salary_text": "",
+        "salary_val": 0,
+        "source": "#GOOGLE",
+        "date_added": "2026-11-18",
+        "pub_date": "2026-11-16",
+        "mail_date": "2026-11-17",
+        "score": 63
+    },
+    {
+        "title": "Lehrkraft EDV in der Beruflichen Reha w/m/d (Minijob oder Teilzeit)",
+        "company": "SRH Berufliches Trainingszentrum Rhein-Neckar gGmbH",
+        "location": "",
+        "url": "",
+        "salary_text": "42.000 € – 55.000 € pro Jahr",
+        "salary_val": 55000,
+        "source": "Indeed Match",
+        "date_added": "2026-11-18",
+        "pub_date": "",
+        "mail_date": "2026-11-17",
+        "score": 50
+    },
+    {
         "title": "Lead Cloud Platform Architect für Google Cloud (GCP) (w/m/x) in Hamburg",
         "company": "NTT DATA",
         "location": "Hamburg, Deutschland",
