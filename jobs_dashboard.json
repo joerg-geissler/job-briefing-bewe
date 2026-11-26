@@ -1,5 +1,31 @@
 [
     {
+        "title": "Google Cloud Infrastructures: Conception and Implementation",
+        "company": "Confidential",
+        "location": "Deutschland",
+        "url": "",
+        "salary_text": "",
+        "salary_val": 0,
+        "source": "#GOOGLE",
+        "date_added": "2026-11-26",
+        "pub_date": "2026-11-24",
+        "mail_date": "2026-11-25",
+        "score": 83
+    },
+    {
+        "title": "Softwareentwickler / Informatiker (m/w/d) für betriebliche Anwendungssysteme",
+        "company": "SPINNER Werkzeugmaschinenfabrik GmbH",
+        "location": "Sauerlach, Deutschland",
+        "url": "",
+        "salary_text": "",
+        "salary_val": 0,
+        "source": "#GOOGLE",
+        "date_added": "2026-11-26",
+        "pub_date": "2026-11-25",
+        "mail_date": "2026-11-26",
+        "score": 53
+    },
+    {
         "title": "Lead Cloud Platform Architect für Google Cloud (GCP) (w/m/x) in Frankfurt a. M.",
         "company": "NTT DATA",
         "location": "Frankfurt am Main, Deutschland",
